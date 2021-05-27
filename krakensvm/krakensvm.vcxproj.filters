@@ -34,12 +34,13 @@
   <ItemGroup>
     <None Include="ia32e\.keep" />
     <None Include="hooks\.keep" />
+    <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\krakensvm.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\util.hpp">
+    <ClInclude Include="inc\hv_util.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

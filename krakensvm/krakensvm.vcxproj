@@ -174,6 +174,7 @@
       <WppRecorderEnabled>true</WppRecorderEnabled>
       <WppScanConfigurationData Condition="'%(ClCompile.ScanConfigurationData)' == ''">trace.h</WppScanConfigurationData>
       <WppKernelMode>true</WppKernelMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -216,12 +217,13 @@
     <MASM Include="svm\svm-hv64.asm" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
     <None Include="hooks\.keep" />
     <None Include="ia32e\.keep" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\krakensvm.hpp" />
-    <ClInclude Include="inc\util.hpp" />
+    <ClInclude Include="inc\hv_util.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="svm\krakensvm.cpp" />
