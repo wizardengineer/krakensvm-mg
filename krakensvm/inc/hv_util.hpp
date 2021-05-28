@@ -32,47 +32,36 @@
 #include <intrin.h>
 #include <type_traits>
 
-/*
-// Simple use cases
-void* operator new(size_t size)
-{
-	return ExAllocatePoolWithTag(NonPagedPool, size, HV_POOL_TAG);
-}
-
-void* operator new[](size_t size)
-{
-	return ExAllocatePoolWithTag(NonPagedPool, size, HV_POOL_TAG);
-}
-
-void operator delete(void* what)
-{
-	ExFreePool(what);
-}
-
-void operator delete(void* what, unsigned long long size)
-{
-	ExFreePool(what);
-}
-
-void operator delete[](void* what)
-{
-	ExFreePool(what);
-}
-
-void operator delete[](void* what, unsigned long long size)
-{
-	ExFreePool(what);
-}
-*/
-
+//
 // CPUID
+//
+
 inline void __cpuid(int[CPUID_MAX_REGS], int);
 #pragma intrinsic(__cpuid)
 
 inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
 #pragma intrinsic(__cpuidex)
 
+// 
 // MSR
+//
+ 
+/*
+ * The VM_CR MSR controls certain global aspects of SVM. The VM_CR.SVMDIS
+ * is a bit, if this bit was set, it would disallow the act of  setting
+ * EFER.SVM bit.
+ */
+
+#define vm_cr           0xC0010114
+#define vm_cr_svmdis    0x10           // 0x10 will check the 5 bit of VM_CR
+
+/*
+ * Extended Feature Enable Register (EFER)
+ */
+
+#define ia32_efer       0xC0000080
+#define ia32_efer_svme  0x1000         // this will set the 13 bit of EFER 
+
 
 
 
