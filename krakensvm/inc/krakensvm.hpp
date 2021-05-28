@@ -48,8 +48,6 @@ namespace svm
 
     // fn8000_0001_ebx_np bit
     nest_page_fn            = 0x00000001,
-
-    //fn8000_0001_ecx_
   };
 
   static auto svm_support_checking() noexcept -> bool;
