@@ -25,30 +25,30 @@
 
 #include <wdm.h>
 #include <ntddk.h>
-#include <krakensvm.hpp>
+#include "inc/krakensvm.hpp"
 
 static void driver_unloading(PDRIVER_OBJECT driver_object);
 
 EXTERN_C
 NTSTATUS driver_entry(
-  _In_ PDRIVER_OBJECT driver_object,
-  _In_ PUNICODE_STRING registry_path
+	_In_ PDRIVER_OBJECT driver_object,
+	_In_ PUNICODE_STRING registry_path
 )
 {
-  KdPrint(("driver_entry() \n"));
-  UNREFERENCED_PARAMETER(registry_path);
+	KdPrint(("driver_entry() \n"));
+	UNREFERENCED_PARAMETER(registry_path);
 
-  svm::svm_enabling();
+	svm::svm_enabling();
 
-  driver_object->DriverUnload = driver_unloading;
-  return STATUS_SUCCESS;
+	driver_object->DriverUnload = driver_unloading;
+	return STATUS_SUCCESS;
 }
 
 static void driver_unloading(PDRIVER_OBJECT driver_object)
 {
-  UNREFERENCED_PARAMETER(driver_object);
+	UNREFERENCED_PARAMETER(driver_object);
 
-  KdPrint(("driver unloading\n"));
+	KdPrint(("driver unloading\n"));
 }
 
 // 242, 585

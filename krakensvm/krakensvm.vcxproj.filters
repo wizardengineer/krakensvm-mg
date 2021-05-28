@@ -24,9 +24,22 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="svm\svm-hv64.asm">
+    <ClCompile Include="kdriver.cpp">
       <Filter>Source Files</Filter>
-    </MASM>
+    </ClCompile>
+    <ClCompile Include="svm\krakensvm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\hv_util.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\krakensvm.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <MASM Include="inc\asm_inc.asm">
       <Filter>Source Files</Filter>
     </MASM>
@@ -34,19 +47,5 @@
   <ItemGroup>
     <None Include="ia32e\.keep" />
     <None Include="hooks\.keep" />
-    <None Include=".gitignore" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="inc\krakensvm.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\hv_util.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="svm\krakensvm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

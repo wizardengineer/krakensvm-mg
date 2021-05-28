@@ -23,11 +23,15 @@
 * SOFTWARE.
 */
 
-#include <krakensvm.hpp>
+#include "../inc/krakensvm.hpp"
+
+/*
+ * Before enabling SVM, software should detect whether SVM can be enabled using
+ * the following algorithm
+ */
 
 namespace svm
 {
-
   static auto svm_support_checking() noexcept -> bool
   {
     int32_t regs[4]      = {};
@@ -95,14 +99,13 @@ namespace svm
            svm_lock;
   }
 
-  auto svm_enabling () noexcept -> void
+  auto svm_enabling() noexcept -> void
   {
     if (svm_support_checking())
     {
-      __writemsr(__readmsr(ia32_efer),
+      __writemsr(ia32_efer,
                  __readmsr(ia32_efer) | ia32_efer_svme);
     }
-
     else
     {
       KdPrint(("[!] SVM is not fully usable for you pc"));

@@ -30,7 +30,6 @@
 
 #include <ntddk.h>
 #include <intrin.h>
-#include <type_traits>
 
 //
 // CPUID
@@ -45,7 +44,7 @@ inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
 // 
 // MSR
 //
- 
+
 /*
  * The VM_CR MSR controls certain global aspects of SVM. The VM_CR.SVMDIS
  * is a bit, if this bit was set, it would disallow the act of  setting
@@ -55,16 +54,12 @@ inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
 #define vm_cr           0xC0010114
 #define vm_cr_svmdis    0x10           // 0x10 will check the 5 bit of VM_CR
 
-/*
- * Extended Feature Enable Register (EFER)
- */
+ /*
+  * Extended Feature Enable Register (EFER)
+  */
 
 #define ia32_efer       0xC0000080
 #define ia32_efer_svme  0x1000         // this will set the 13 bit of EFER 
-
-
-
-
 
 
 
