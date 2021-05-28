@@ -93,9 +93,10 @@ namespace svm
             return regs[3] == 0;
           }();
 
-    return processor_check &&
-           svm_check       &&
-           vmcr_check      &&
+    return processor_check     &&
+           svm_check           &&
+           vmcr_check          &&
+           nest_paging_check   &&
            svm_lock;
   }
 
