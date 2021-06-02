@@ -25,9 +25,6 @@
 
 #pragma once
 
-#define IA32_MSR_EFER                0xC0000080
-#define IA32_MSR_EFER_SVM_BIT        (1UL << 12)
-
 #include <stdint.h>
 #include "hv_util.hpp"
 

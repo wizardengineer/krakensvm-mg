@@ -35,18 +35,24 @@ NTSTATUS driver_entry(
 	_In_ PUNICODE_STRING registry_path
 )
 {
-	KdPrint(("driver_entry() \n"));
-	UNREFERENCED_PARAMETER(registry_path);
+//  PUNICODE_STRING driver_name    ,
+//                  dos_device_name;
 
-	svm::svm_enabling();
+  registry_path;
+	KdPrint(("The Driver Entry \n"));
+
+
+//  RtlInitUnicodeString(driver_name,     L"\\Device\\KrakenSvm");
+//  RtlInitUnicodeString(dos_device_name, L"\\DosDevices\\KrakenSvm");
 
 	driver_object->DriverUnload = driver_unloading;
+  svm::svm_enabling();
 	return STATUS_SUCCESS;
 }
 
 static void driver_unloading(PDRIVER_OBJECT driver_object)
 {
-	UNREFERENCED_PARAMETER(driver_object);
+  driver_object;
 
 	KdPrint(("driver unloading\n"));
 }
