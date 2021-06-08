@@ -35,6 +35,7 @@ namespace svm
 
     // features
     svm_features            = 0x8000000a,
+    svm_features_ex         = 0x80000001,
     processor_feature_id    = 0x80000001,
     processor_feature_id_ex = 0x00000001,
     cpu_vendor_string       = 0x00000000,
@@ -49,4 +50,4 @@ namespace svm
 
   static auto svm_support_checking() noexcept -> bool;
   auto svm_enabling               () noexcept -> void;
-};
+}; // namespace svm
