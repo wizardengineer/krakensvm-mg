@@ -59,7 +59,7 @@ inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
   */
 
 #define ia32_efer       0xC0000080
-#define ia32_efer_svme  0x1000         // this will set the 13 bit of EFER 
+#define ia32_efer_svme  0x1000        // this will set the 13 bit of EFER 
 
 
 

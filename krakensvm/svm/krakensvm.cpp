@@ -112,4 +112,4 @@ namespace svm
       KdPrint(("[!] SVM is not fully usable for you pc"));
     }
   }
-};
+};  
