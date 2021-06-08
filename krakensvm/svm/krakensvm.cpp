@@ -56,8 +56,8 @@ namespace svm
     bool svm_check =
           [&regs]()
           {
-            __cpuid(regs, (int)cpuid_e::svm_features);
-            return (regs[2] & (int)cpuid_e::svm_fn) == 1;
+            __cpuid(regs, (int)cpuid_e::svm_features_ex);
+            return (regs[2] & (int)cpuid_e::svm_fn) != 0;
           }();
 
     //
@@ -90,7 +90,7 @@ namespace svm
           [&regs]()
           {
             __cpuid(regs, (int)cpuid_e::svm_features);
-            return regs[3] == 0;
+            return regs[3] != 0;
           }();
 
     return processor_check     &&
@@ -112,4 +112,4 @@ namespace svm
       KdPrint(("[!] SVM is not fully usable for you pc"));
     }
   }
-};  
+}; // namespace svm
