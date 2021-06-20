@@ -23,7 +23,7 @@
 * SOFTWARE.
 */
 
-#include "../inc/krakensvm.hpp"
+#include <krakensvm.hpp>
 
 /*
  * Before enabling SVM, software should detect whether SVM can be enabled using
@@ -107,7 +107,7 @@ namespace svm
       __writemsr(ia32_efer,
                  __readmsr(ia32_efer) | ia32_efer_svme);
     }
-    else
+    else [[unlikely]]
     {
       KdPrint(("[!] SVM is not fully usable for you pc"));
     }
