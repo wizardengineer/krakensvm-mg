@@ -25,7 +25,7 @@
 
 #include <wdm.h>
 #include <ntddk.h>
-#include "inc/krakensvm.hpp"
+#include <krakensvm.hpp>
 
 static void driver_unloading(PDRIVER_OBJECT driver_object);
 
@@ -40,7 +40,6 @@ NTSTATUS driver_entry(
 
   registry_path;
 	KdPrint(("The Driver Entry \n"));
-
 
 //  RtlInitUnicodeString(driver_name,     L"\\Device\\KrakenSvm");
 //  RtlInitUnicodeString(dos_device_name, L"\\DosDevices\\KrakenSvm");

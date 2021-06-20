@@ -31,6 +31,9 @@
 #include <ntddk.h>
 #include <intrin.h>
 
+template<class type>
+concept integral = std::is_integral_v<type>;
+
 //
 // CPUID
 //

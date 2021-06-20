@@ -169,15 +169,19 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="svm\vmcb.cpp" />
     <ClCompile Include="kdriver.cpp" />
     <ClCompile Include="svm\krakensvm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ia32e\segmentation.hpp" />
     <ClInclude Include="inc\hv_util.hpp" />
     <ClInclude Include="inc\krakensvm.hpp" />
+    <ClInclude Include="inc\vmcb.hpp" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="inc\asm_inc.asm" />
+    <MASM Include="svm\vmrun.asm" />
   </ItemGroup>
   <ItemGroup>
     <None Include="hooks\.keep" />

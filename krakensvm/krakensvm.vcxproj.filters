@@ -38,9 +38,15 @@
     <ClInclude Include="inc\krakensvm.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ia32e\segmentation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="inc\asm_inc.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="svm\vmrun.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

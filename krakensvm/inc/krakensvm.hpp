@@ -26,6 +26,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <type_traits>
 #include "hv_util.hpp"
 
 namespace svm
