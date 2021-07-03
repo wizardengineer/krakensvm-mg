@@ -126,11 +126,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <IncludePath>$(VC_IncludePath);C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\inc;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\ia32e;$(VC_IncludePath);C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\inc;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <IncludePath>$(VC_IncludePath);C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\inc;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\ia32e;$(VC_IncludePath);C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\inc;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -174,18 +174,19 @@
     <ClCompile Include="svm\krakensvm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ia32e\segmentation.hpp" />
+    <ClInclude Include="ia32e\descriptors_info.hpp" />
+    <ClInclude Include="ia32e\paging.hpp" />
     <ClInclude Include="inc\hv_util.hpp" />
     <ClInclude Include="inc\krakensvm.hpp" />
     <ClInclude Include="inc\vmcb.hpp" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="inc\asm_inc.asm" />
-    <MASM Include="svm\vmrun.asm" />
+    <MASM Include="svm\vmexecute.asm" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
     <None Include="hooks\.keep" />
-    <None Include="ia32e\.keep" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

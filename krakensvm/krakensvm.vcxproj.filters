@@ -30,6 +30,9 @@
     <ClCompile Include="svm\krakensvm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="svm\vmcb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\hv_util.hpp">
@@ -38,7 +41,13 @@
     <ClInclude Include="inc\krakensvm.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ia32e\segmentation.hpp">
+    <ClInclude Include="ia32e\descriptors_info.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\vmcb.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32e\paging.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -46,12 +55,12 @@
     <MASM Include="inc\asm_inc.asm">
       <Filter>Source Files</Filter>
     </MASM>
-    <MASM Include="svm\vmrun.asm">
+    <MASM Include="svm\vmexecute.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ia32e\.keep" />
     <None Include="hooks\.keep" />
+    <None Include=".gitignore" />
   </ItemGroup>
 </Project>
