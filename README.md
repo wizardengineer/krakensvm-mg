@@ -15,8 +15,7 @@ A simple x86_64 AMD-v hypervisor type-2, with syscall and paging hooks. Programm
    * [Kernel Play Guide - AMD-V](https://nskernel.gitbook.io/kernel-play-guide/kvm/amd-v-and-sev)
 
 # Table of Contents:
-
-* Preamble
+* [Preamble](#preamble)
    * [Purpose & Intentions](#purpose) 
    * [Support](#support)
    <!-- for #purpose talk about why you did this
@@ -49,13 +48,13 @@ A simple x86_64 AMD-v hypervisor type-2, with syscall and paging hooks. Programm
 -->
 
 ## Preamble
-*   <a name="purpose"> ** Purpose & Intentions ** </a> <br>  
+<a name="purpose"> **Purpose & Intentions** </a> <br>  
 There was a lack of complacent with the amount of menial projects
 I've accomplished. I wanted to hit the big fish, something more precedence than my former projects. That was going to be a challenge 
 and helpful for any others whom might decide to make a AMD HyperVisor.
 
 ## Terminology
-*   <a name="terminology"> ** HyperVisor (VMM) key terms ** </a> <br>
+<a name="terminology"> **HyperVisor (VMM) key terms** </a> <br>
    * World Switch - is the act of switching between Host and Guest. The host will excute VMRUN to start-up or run the Guest. The sequence would usually be Host -> Guest -> Host 
    * vCPUs or CPUs - when the intel or amd manual discusses about a VMM having a CPUs. It's referring to it having CPU Cores, rather than single entity of your CPU
    * Nest Page Table (NPT)-
