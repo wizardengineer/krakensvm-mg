@@ -23,7 +23,21 @@
 * SOFTWARE.
 */
 
+#include <vmcb.hpp>
+
 namespace vmcb
 {
+  //
+  // Preparation for the Virtualization of the processor
+  //
 
+  auto create_virt_prep() noexcept -> void
+  {
+    ia32e::descriptor_reg_64_t gdtr, idtr;
+    physical_addr pm;
+
+    _sgdt(&gdtr); __sidt(&idtr);
+
+
+  }
 };
