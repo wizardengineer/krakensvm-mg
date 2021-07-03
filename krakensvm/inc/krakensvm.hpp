@@ -51,4 +51,5 @@ namespace svm
 
   static auto svm_support_checking() noexcept -> bool;
   auto svm_enabling               () noexcept -> void;
+  auto svm_disabling              () noexcept -> void;
 }; // namespace svm
