@@ -100,9 +100,13 @@ namespace svm
            svm_lock;
   }
 
+  //
+  // Enables the EFER.SVME if svm_support_checking returns a true
+  //
+
   auto svm_enabling() noexcept -> void
   {
-    if (svm_support_checking())
+    if (svm_support_checking()) [[likely]]
     {
       __writemsr(ia32_efer,
                  __readmsr(ia32_efer) | ia32_efer_svme);
@@ -110,6 +114,22 @@ namespace svm
     else [[unlikely]]
     {
       KdPrint(("[!] SVM is not fully usable for you pc"));
+    }
+  }
+
+  //
+  // Disables it if function is used
+  //
+
+  auto svm_disabling() noexcept -> void
+  {
+    if ((__readmsr(ia32_efer) >> 12) & 1) [[likely]]
+    {
+      __writemsr(ia32_efer, ia32_efer & ~(1 << 12));
+    }
+    else [[unlikely]]
+    {
+      KdPrint(("[!] EFER.SVME is already disable"));
     }
   }
 }; // namespace svm
