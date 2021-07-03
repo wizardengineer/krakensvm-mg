@@ -48,20 +48,18 @@ A simple x86_64 AMD-v hypervisor type-2, with syscall and paging hooks. Programm
 -->
 
 ## Preamble
-<a name="purpose"> **Purpose & Intentions** </a> <br>  
+### Purpose & Intentions
 There was a lack of complacent with the amount of menial projects
 I've accomplished. I wanted to hit the big fish, something more precedence than my former projects. That was going to be a challenge 
 and helpful for any others whom might decide to make a AMD HyperVisor.
 
 ## Terminology
-<a name="terminology"> **HyperVisor (VMM) key terms** </a> <br>
    * World Switch - is the act of switching between Host and Guest. The host will excute VMRUN to start-up or run the Guest. The sequence would usually be Host -> Guest -> Host 
    * vCPUs or CPUs - when the intel or amd manual discusses about a VMM having a CPUs. It's referring to it having CPU Cores, rather than single entity of your CPU
    * Nest Page Table (NPT)-
    * Intercepting - 
    * Virtual Memory Control Block (VMCB) - For intel this would be called VMCS
 
-<br>
 ## Credit - Special Thanks:
   Thanks to these OGs, for the spark of inspiration/support on my continuous effort on this project and for helping me understand certain concepts within HyperVisor development Journey. =)
   * [xeroxz](https://twitter.com/_xeroxz?lang=en) - helping explain concepts around HV
