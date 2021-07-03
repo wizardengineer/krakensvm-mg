@@ -30,6 +30,8 @@
 
 #include <ntddk.h>
 #include <intrin.h>
+#include <basetsd.h>
+#include <ntifs.h>
 
 template<class type>
 concept integral = std::is_integral_v<type>;
