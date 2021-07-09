@@ -176,11 +176,13 @@
   <ItemGroup>
     <ClInclude Include="ia32e\descriptors_info.hpp" />
     <ClInclude Include="ia32e\paging.hpp" />
+    <ClInclude Include="ia32e\segment_intrins.h" />
     <ClInclude Include="inc\hv_util.hpp" />
     <ClInclude Include="inc\krakensvm.hpp" />
     <ClInclude Include="inc\vmcb.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="ia32e\segment_intrins.asm" />
     <MASM Include="inc\asm_inc.asm" />
     <MASM Include="svm\vmexecute.asm" />
   </ItemGroup>

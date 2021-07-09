@@ -50,12 +50,18 @@
     <ClInclude Include="ia32e\paging.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ia32e\segment_intrins.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="inc\asm_inc.asm">
       <Filter>Source Files</Filter>
     </MASM>
     <MASM Include="svm\vmexecute.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="ia32e\segment_intrins.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
