@@ -4,15 +4,6 @@ KrakenSvm
 This was apart of my "Understanding of OS theoretical concepts" and emulator series. I had a great amount of fun with project, if you're interested in AMD virtualization then read chapter 15 of the amd manual 
 
 A simple x86_64 AMD-v hypervisor type-2, with syscall and paging hooks. Programmed with C++
-# Resource I relied on:
-   * [AMD CPUID Specification](http://developer.amd.com/wordpress/media/2012/10/254811.pdf)
-   * [AMD Manual](https://www.amd.com/system/files/TechDocs/24593.pdf) 
-   * [AMD Pacifica Docs](https://courses.cs.vt.edu/~cs5204/fall07-kafura/Papers/Virtualization/AMD-Pacifica-slides.pdf)
-   * [Intel Manual](https://software.intel.com/content/www/us/en/develop/articles/intel-sdm.html)
-   * [Xeroxz Hypervisor](https://githacks.org/_xeroxz/bluepill)
-   * [Irql Hypervisor](https://github.com/irql0/limevisor)
-   * [VMM Intercepts](https://performancebydesign.blogspot.com/2017/12/hyper-v-architecture-intercepts.html)
-   * [Kernel Play Guide - AMD-V](https://nskernel.gitbook.io/kernel-play-guide/kvm/amd-v-and-sev)
 
 # Table of Contents:
 * [Preamble](#preamble)
@@ -34,6 +25,7 @@ A simple x86_64 AMD-v hypervisor type-2, with syscall and paging hooks. Programm
 	  * [VMSAVE](#vmload)
 	  * [VMMCALL](#vmcall)
 * [Credit - Special Thanks](#credit---special-thanks)
+* [Refernce - Resource I relied on](#refernce---resource-i-relied-on)
 
 <!-- 
 	put kernel driver concepts
@@ -64,14 +56,23 @@ In order to test KrakenSvm in VMWARE make sure to follow these steps
    * **Virtual Memory Control Block (VMCB)** - For intel this would be called VMCS
 
 ## Credit - Special Thanks:
-  Thanks to these OGs, for the spark of inspiration/support on my continuous effort on this project and for helping me understand certain concepts within HyperVisor development Journey. =)
-  * [xeroxz](https://twitter.com/_xeroxz?lang=en) - helping explain concepts around HV
+  Thanks to these OGs, for the spark of inspiration/support and just being good friend overall on my continuous effort on this project and for helping me understand certain concepts within HyperVisor development Journey. =)
+  * [xeroxz](https://twitter.com/_xeroxz?lang=en) - helping explain concepts around HV and allowing me to use his code semantics for his OP bluepill project
   * [Daax](https://twitter.com/daax_rynd) - his big brain coming in clutch like always. Having given me a great layout on the semantics of a AMD HyperVisor
+  * [pastry]
   * [tandasat](https://github.com/tandasat/SimpleSvm/)
-  * [Irql0](https://github.com/irql0) - explaining kernel driver concepts
+  * [Irql0](https://github.com/irql0) - explaining kernel driver and some OS concepts
 <br>
-
    *  **Honorable fam mentions**: <br>
    [LLE](https://discord.gg/MvtdVcUsJs) members <br>
    [Jason](https://github.com/johnsonjason)
-   <br>
+   
+ ## Refernce - Resource I relied on:
+   * [AMD CPUID Specification](http://developer.amd.com/wordpress/media/2012/10/254811.pdf)
+   * [AMD Manual](https://www.amd.com/system/files/TechDocs/24593.pdf) 
+   * [AMD Pacifica Docs](https://courses.cs.vt.edu/~cs5204/fall07-kafura/Papers/Virtualization/AMD-Pacifica-slides.pdf)
+   * [Intel Manual](https://software.intel.com/content/www/us/en/develop/articles/intel-sdm.html)
+   * [Xeroxz Hypervisor](https://githacks.org/_xeroxz/bluepill)
+   * [Irql Hypervisor](https://github.com/irql0/limevisor)
+   * [VMM Intercepts](https://performancebydesign.blogspot.com/2017/12/hyper-v-architecture-intercepts.html)
+   * [Kernel Play Guide - AMD-V](https://nskernel.gitbook.io/kernel-play-guide/kvm/amd-v-and-sev)
