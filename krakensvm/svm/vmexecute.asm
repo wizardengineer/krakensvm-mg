@@ -25,4 +25,23 @@
 
 ; simple include file that simple my ia32e assembly programming
 
+; include asm_inc.asm
+
 .code
+svmlaunch proc
+    mov rcx, rsp ; <- storing the Host RSP value in RCX for later use
+
+svm_loop:
+    mov rax, [rsp]
+
+    vmload rax
+
+    vmrun rax
+
+    vmsave rax
+
+    jmp svm_loop
+
+svm_terminate:
+    mov rsp, rcx
+svmlaunch endp
