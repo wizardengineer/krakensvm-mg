@@ -1,4 +1,4 @@
-/* This file is part of mg-hypervisor by medievalghoul, licensed under the MIT license:
+/* This file is part of krakensvm-mg by medievalghoul, licensed under the MIT license:
 *
 * MIT License
 *
@@ -29,29 +29,30 @@
 #include <paging.hpp>
 #include <descriptors_info.hpp>
 
+extern "C" void svmlaunch(uint64_t& guestvmcb_pa);
+
 namespace vmcb
 {
-
   union clean_field
   {
     uint32_t value;
 
     struct
     {
-      uint32_t intercepts : 1;
-      uint32_t iopm : 1;
-      uint32_t asid : 1;
-      uint32_t tpr : 1;
+      uint32_t intercepts  : 1;
+      uint32_t iopm        : 1;
+      uint32_t asid        : 1;
+      uint32_t tpr         : 1;
       uint32_t nested_page : 1;
-      uint32_t crx : 1;
-      uint32_t drx : 1;
-      uint32_t dt : 1;
-      uint32_t segs : 1;
-      uint32_t cr2 : 1;
-      uint32_t ldr : 1;
-      uint32_t avic : 1;
-      uint32_t cet : 1;
-      uint32_t reversed : 13;
+      uint32_t crx         : 1;
+      uint32_t drx         : 1;
+      uint32_t dt          : 1;
+      uint32_t segs        : 1;
+      uint32_t cr2         : 1;
+      uint32_t ldr         : 1;
+      uint32_t avic        : 1;
+      uint32_t cet         : 1;
+      uint32_t reversed    : 13;
 
     } fields;
   };
@@ -149,8 +150,8 @@ namespace vmcb
                   "Size does not match up with the VMCB Control Area");
 
   //
-  // This may seem a bit trivial, however the reason for adding the functions
-  // bits_split() and bits_extract(), was to be able to get a single out a
+  // This may be a bit trivial, however the reason for adding the functions
+  // bits_shift() and bits_and(), was to be able to get a single out a
   // bit or a chunk of the data members that's been compressed rather than
   // verbosely being explicit as the certain vectors in the VMCB Control Area
   // and State Save Area. I.E, notice how `intercept_misc_vector_3` is not split
@@ -159,7 +160,7 @@ namespace vmcb
 
   template<size_t num, class T>
     requires integral<T>
-  constexpr inline auto bits_split(T& data_member) noexcept -> uint8_t
+  constexpr inline auto bits_shift(T& data_member) noexcept -> uint8_t
   {
     return (data_member >> num) & 1;
   }
@@ -167,7 +168,7 @@ namespace vmcb
 
   template<size_t num, class T>
     requires integral<T>
-  constexpr inline auto bits_extract(T& data_member) noexcept -> uint8_t
+  constexpr inline auto bits_and(T& data_member) noexcept -> uint8_t
   {
     return data_member & num;
   }
@@ -257,8 +258,7 @@ namespace vmcb
 
   } vmcb_64_t, *pvmcb_64_t;
 
-  auto setup_host      () noexcept -> void;
-  auto create_virt_prep() noexcept -> void;
+  auto create_virt_prep(vcpu_ctx_t& vcpu_data) noexcept -> void;
+
   auto virt_cpu_init   () noexcept -> void;
 };
-
