@@ -1,4 +1,4 @@
-; This file is part of mg-hypervisor by medievalghoul, licensed under the MIT license:
+; This file is part of krakensvm-mg by medievalghoul, licensed under the MIT license:
 ;
 ; MIT License
 ;
