@@ -33,6 +33,9 @@
     <ClCompile Include="svm\vmcb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ia32e\descriptors_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\hv_util.hpp">

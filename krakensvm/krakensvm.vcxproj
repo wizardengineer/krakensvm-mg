@@ -150,7 +150,7 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -159,7 +159,7 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -169,6 +169,7 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ia32e\descriptors_info.cpp" />
     <ClCompile Include="svm\vmcb.cpp" />
     <ClCompile Include="kdriver.cpp" />
     <ClCompile Include="svm\krakensvm.cpp" />
