@@ -24,6 +24,7 @@
 */
 
 #include <krakensvm.hpp>
+#include <hv_util.hpp>
 
 /*
  * Before enabling SVM, software should detect whether SVM can be enabled using

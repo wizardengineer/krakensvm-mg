@@ -45,3 +45,5 @@ svm_loop:
 svm_terminate:
     mov rsp, rcx
 svmlaunch endp
+
+END

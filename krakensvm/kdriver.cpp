@@ -26,6 +26,7 @@
 #include <wdm.h>
 #include <ntddk.h>
 #include <krakensvm.hpp>
+#include <vmcb.hpp>
 
 static void driver_unloading(PDRIVER_OBJECT driver_object);
 
@@ -45,7 +46,7 @@ NTSTATUS driver_entry(
 //  RtlInitUnicodeString(dos_device_name, L"\\DosDevices\\KrakenSvm");
 
 	driver_object->DriverUnload = driver_unloading;
-  svm::svm_enabling();
+  vmcb::virt_cpu_init();
 	return STATUS_SUCCESS;
 }
 
