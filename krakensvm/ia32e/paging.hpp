@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <krakensvm.hpp>
+#include <stdint.h>
 
 namespace ia32e::mm
 {

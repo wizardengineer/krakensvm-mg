@@ -31,20 +31,11 @@
 #include <ntddk.h>
 #include <intrin.h>
 #include <basetsd.h>
-#include <ntifs.h>
-#include <utility>
-
-// HV Specific headers
-#include <vmcb.hpp>
-#include <paging.hpp>
-#include <krakensvm.hpp>
-#include <segment_intrins.h>
-#include <descriptors_info.hpp>
-
-
+//#include <ntifs.h>
+#include <type_traits>
 
 extern "C" void _sgdt(void*);
-#pragma intrinsic(_sgdt);
+#pragma intrinsic(_sgdt)
 
 template<class type>
 concept integral = std::is_integral_v<type>;
@@ -60,19 +51,8 @@ inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
 #pragma intrinsic(__cpuidex)
 
 //
-// VCPU Specific data & Intercept Data (Apart of the VMCB Layout, Control Area)
+// Intercept Data (Apart of the VMCB Layout, Control Area)
 //
-
-typedef union _vcpu_ctx
-{
-  __declspec(align(PAGE_SIZE)) vmcb::vmcb_64_t guest_vmcb;
-  __declspec(align(PAGE_SIZE)) vmcb::vmcb_64_t host_vmcb;
-
-  __declspec(align(PAGE_SIZE)) uint8_t host_state_area[PAGE_SIZE]; 
-
-  void* msrpm_pa; // Physical Address of "MSR Permission Maps"
-} vcpu_ctx_t, *pvcpu_ctx;
-
 
 // Vector 00CH
 #define INTERCEPT_CPUID    (1UL << 18) // Intercept CPUID Instruction.

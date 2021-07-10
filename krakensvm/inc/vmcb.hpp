@@ -27,7 +27,9 @@
 
 #include <krakensvm.hpp>
 #include <paging.hpp>
+#include <segment_intrins.h>
 #include <descriptors_info.hpp>
+#include <hv_util.hpp>
 
 extern "C" void svmlaunch(uint64_t& guestvmcb_pa);
 
@@ -35,7 +37,7 @@ namespace vmcb
 {
   union clean_field
   {
-    uint32_t value;
+    uint64_t value;
 
     struct
     {
@@ -52,12 +54,14 @@ namespace vmcb
       uint32_t ldr         : 1;
       uint32_t avic        : 1;
       uint32_t cet         : 1;
-      uint32_t reversed    : 13;
+      uint32_t reversed    : 19;
+
+      uint32_t reserved;
 
     } fields;
   };
 
-  static_assert(sizeof(clean_field) == 0x4,
+  static_assert(sizeof(clean_field) == 0x8,
                   "Size does not match up with the VMCB Control Area clean_field");
 
   //
@@ -129,7 +133,7 @@ namespace vmcb
     uint64_t lbr_virtualization_enable;       // +0x0b8
 
     clean_field vmcb_clean_bits;              // +0x0c0
-    uint32_t reserved;
+    
 
     uint64_t n_rip;                           // +0x0c8
 
@@ -258,7 +262,24 @@ namespace vmcb
 
   } vmcb_64_t, *pvmcb_64_t;
 
-  auto create_virt_prep(vcpu_ctx_t& vcpu_data) noexcept -> void;
+  //
+  // VCPU Specific data 
+  //
 
+  typedef struct _vcpu_ctx_fmt_t
+  {
+    __declspec(align(PAGE_SIZE)) vmcb_64_t guest_vmcb;
+    __declspec(align(PAGE_SIZE)) vmcb_64_t host_vmcb;
+
+    __declspec(align(PAGE_SIZE)) uint8_t host_state_area[PAGE_SIZE];
+
+    uint64_t guest_vmcb_pa;
+
+    void* msrpm_pa; // Physical Address of "MSR Permission Maps"
+  } vcpu_ctx_t, * pvcpu_ctx_t;
+
+  auto create_virt_prep(pvcpu_ctx_t vcpu_data) noexcept -> void;
   auto virt_cpu_init   () noexcept -> void;
+
+
 };
