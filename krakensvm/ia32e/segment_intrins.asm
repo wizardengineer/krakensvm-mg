@@ -1,5 +1,6 @@
 ; got this Semantics idea from XEROXZ (https://githacks.org/_xeroxz/bluepill/-/blob/master/segment_intrin.asm)
 
+.code
 __reades proc
     mov rax, es
     ret
@@ -43,9 +44,6 @@ __readldt endp
 __readrsp proc
     mov rax, rsp
     ret
-__readgs endp
+__readrsp endp
 
-__readrip proc
-    mov rax, rip
-    ret
-__readgs endp
+END
