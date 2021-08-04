@@ -30,16 +30,15 @@ using namespace ia32e;
 
 namespace vmcb
 {
-  template<class T>
-  concept size = requires(T x) { requires sizeof(x) <= PAGE_SIZE; };
+  
 
   //
   // Preparation for the Virtualization of the processor
   //
 
-  auto create_virt_prep(pvcpu_ctx_t vcpu_data) noexcept -> void
+  auto create_virt_prep(pvcpu_ctx_t vcpu_data, register_ctx_t& host_info) noexcept -> void
   {
-    uint64_t host_vmcb_pa = {}, guest_vmcb_pa = {};
+    uint64_t host_vmcb_pa = {}, guest_vmcb_pa = {}, msrpm_vmcb_pa = {};
     seg::descriptor_reg_64_t gdtr_ptr, idtr_ptr;
 
     _sgdt(&gdtr_ptr);
@@ -50,20 +49,24 @@ namespace vmcb
     // & Physical Address being assigned & ASID
     //
 
+    
     vcpu_data->guest_vmcb
-      .control_area.intercept_misc_vector_3 |= // INTERCEPT_MSR_PROT |
-                                               INTERCEPT_CPUID |
-                                               INTERCEPT_FERR_FRE;
+      .control_area.intercept_misc_vector_3 |= INTERCEPT_MSR_PROT |
+                                               INTERCEPT_CPUID    ;
+                                               //INTERCEPT_FERR_FRE;
 
     vcpu_data->guest_vmcb
       .control_area.intercept_misc_vector_4 |= INTERCEPT_VMRUN |
                                                INTERCEPT_EFER;
+                                               
 
     vcpu_data->guest_vmcb.control_area.guest_asid = 1;
 
-    host_vmcb_pa = MmGetPhysicalAddress(&vcpu_data->host_vmcb).QuadPart;
+    host_vmcb_pa  = MmGetPhysicalAddress(&vcpu_data->host_vmcb).QuadPart;
 
     guest_vmcb_pa = MmGetPhysicalAddress(&vcpu_data->guest_vmcb).QuadPart;
+
+    msrpm_vmcb_pa = MmGetPhysicalAddress(&vcpu_data->msrpm_pa).QuadPart;
 
     //
     // Descriptor Table Registers / Segment Registers & Control Registers & GP Registers
@@ -75,6 +78,8 @@ namespace vmcb
 
     vcpu_data->guest_vmcb.save_state.idtr.base_addr = idtr_ptr.base;
     vcpu_data->guest_vmcb.save_state.idtr.limit = idtr_ptr.limit;
+
+    vcpu_data->guest_vmcb.control_area.msrpm_base_pa = msrpm_vmcb_pa;
 
     vcpu_data->guest_vmcb.save_state.es.limit = __segmentlimit(__reades());
     vcpu_data->guest_vmcb.save_state.cs.limit = __segmentlimit(__readcs());
@@ -121,10 +126,13 @@ namespace vmcb
     vcpu_data->guest_vmcb.save_state.cr4 = uint64_t(__readcr4());
     vcpu_data->guest_vmcb.save_state.efer = uint64_t(__readmsr(ia32_efer));
 
+    // RtlCaptureContext(callee_ctx);
     
-    // GP Register
-    vcpu_data->guest_vmcb.save_state.rsp = __readrsp();
-    vcpu_data->guest_vmcb.save_state.rip = 1;
+    // GP Register (where they're suppose to be initialize)
+    vcpu_data->guest_vmcb.save_state.rsp = host_info.rsp;
+    vcpu_data->guest_vmcb.save_state.rip = host_info.rip;
+    vcpu_data->guest_vmcb.save_state.rflags = host_info.eflag;
+
     // https://en.wikipedia.org/wiki/Page_attribute_table
     vcpu_data->guest_vmcb.save_state.g_pat = __readmsr(ia32_pat);
 
@@ -135,45 +143,44 @@ namespace vmcb
     __writemsr(vm_hsave_pa, MmGetPhysicalAddress(&vcpu_data->host_state_area).QuadPart);
 
     __svm_vmsave(host_vmcb_pa);
-
-  }
-
-  template<size U>
-  static auto page_aligned_alloc(U bytes_number) -> void*
-  {
-    void* ptr_memory;
-    ptr_memory = ExAllocatePoolWithTag(NonPagedPool, bytes_number, HV_POOL_TAG);
-
-    if (ptr_memory != nullptr)
-    {
-      memset(ptr_memory, 0, bytes_number);
-    }
-    return ptr_memory;
+    
   }
 
 #define free_page_aligned_alloc(base_address) ExFreePoolWithTag(base_address, HV_POOL_TAG)
 
   auto virt_cpu_init() noexcept -> void
   {
-    pvcpu_ctx_t vcpu_data;
-    vcpu_data = nullptr;
+    pvcpu_ctx_t vcpu_data { nullptr };
+    register_ctx_t host_info;
 
-    auto exit_exec = []<class T>(T* data)
+    inline auto exit_exec = []<class T>(T* data)
     {
       free_page_aligned_alloc(data);
       return;
     };
 
-    vcpu_data = reinterpret_cast<pvcpu_ctx_t>( page_aligned_alloc(sizeof(vcpu_ctx_t)) );
+    vcpu_data = reinterpret_cast<pvcpu_ctx_t>
+      ( mm::page_aligned_alloc(sizeof(vcpu_ctx_t)) );
 
-    if(vcpu_data == nullptr) [[unlikely]]
+    if (vcpu_data == nullptr) [[unlikely]]
     {
       exit_exec(vcpu_data);
     }
 
     svm::svm_enabling();
-    create_virt_prep(vcpu_data);
-    svmlaunch(vcpu_data->guest_vmcb_pa);
+    create_virt_prep(vcpu_data, host_info);
+    svmlaunch(&vcpu_data->guest_vmcb_pa);
+
+    //while (1)
+    //{
+    // __svm_vmrun(vcpu_data->guest_vmcb_pa);
+    // __svm_vmsave(vcpu_data->guest_vmcb_pa);
+    // __svm_vmload(vcpu_data->guest_vmcb_pa);
+    //}
+
+#if defined(_DEBUG)
+    __debugbreak();
+#endif
 
     KeBugCheck(MANUALLY_INITIATED_CRASH);
   }
