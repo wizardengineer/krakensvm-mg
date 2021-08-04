@@ -31,10 +31,13 @@
 #include <descriptors_info.hpp>
 #include <hv_util.hpp>
 
-extern "C" void svmlaunch(uint64_t& guestvmcb_pa);
+extern "C" void svmlaunch(uint64_t* guestvmcb_pa);
 
 namespace vmcb
 {
+  template<class type>
+  concept integral = std::is_integral_v<type>;
+
   union clean_field
   {
     uint64_t value;
@@ -56,7 +59,7 @@ namespace vmcb
       uint32_t cet         : 1;
       uint32_t reversed    : 19;
 
-      uint32_t reserved;
+      uint32_t reserved_2;
 
     } fields;
   };
@@ -154,6 +157,7 @@ namespace vmcb
                   "Size does not match up with the VMCB Control Area");
 
   //
+  // I will later expand them more for debugging reasons.
   // This may be a bit trivial, however the reason for adding the functions
   // bits_shift() and bits_and(), was to be able to get a single out a
   // bit or a chunk of the data members that's been compressed rather than
@@ -275,11 +279,10 @@ namespace vmcb
 
     uint64_t guest_vmcb_pa;
 
-    void* msrpm_pa; // Physical Address of "MSR Permission Maps"
+    uint64_t msrpm_pa; // Physical Address of "MSR Permission Maps"
   } vcpu_ctx_t, * pvcpu_ctx_t;
 
-  auto create_virt_prep(pvcpu_ctx_t vcpu_data) noexcept -> void;
+
+  auto create_virt_prep(pvcpu_ctx_t vcpu_data, register_ctx_t& host_info) noexcept -> void;
   auto virt_cpu_init   () noexcept -> void;
-
-
 };
