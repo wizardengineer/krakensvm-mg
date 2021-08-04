@@ -1,4 +1,6 @@
-; got this Semantics idea from XEROXZ (https://githacks.org/_xeroxz/bluepill/-/blob/master/segment_intrin.asm)
+; got this Semantics idea from Daax & XEROXZ
+; XEROXZ - (https://githacks.org/_xeroxz/bluepill/-/blob/master/segment_intrin.asm)
+; Daax - 7 Days virtualization 
 
 .code
 __reades proc
@@ -43,7 +45,20 @@ __readldt endp
 
 __readrsp proc
     mov rax, rsp
+    add rax, 8
     ret
 __readrsp endp
+
+__readrip proc
+    mov rax, [rsp]
+    ret
+__readrip endp
+
+__readrflags proc
+    pushfq
+    pop rax
+    popfq
+    ret
+__readrflags endp
 
 END
