@@ -29,7 +29,7 @@
 
 .code
 svmlaunch proc
-    mov rcx, rsp ; <- storing the Host RSP value in RCX for later use
+    mov rsp, rcx 
 
 svm_loop:
     mov rax, [rsp]
