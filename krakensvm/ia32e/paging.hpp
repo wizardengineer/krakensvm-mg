@@ -26,9 +26,13 @@
 #pragma once
 
 #include <stdint.h>
+#include <hv_util.hpp>
 
 namespace ia32e::mm
 {
+  template<class T>
+  concept size = requires(T x) { requires sizeof(x) <= PAGE_SIZE; };
+
   //
   // Figure 5-18. 4-Kbyte PML4E—Long Mode
   //
@@ -149,5 +153,20 @@ namespace ia32e::mm
 
   static_assert(sizeof(_pte_fmt_t) == 8,
                   "Size of PTE is not Valid");
+
+  template<size U>
+  auto page_aligned_alloc(U bytes_number) -> void*
+  {
+    void* ptr_memory;
+    ptr_memory = ExAllocatePoolWithTag(NonPagedPool, bytes_number, HV_POOL_TAG);
+
+    if (ptr_memory != nullptr)
+    {
+      memset(ptr_memory, 0, bytes_number);
+    }
+    return ptr_memory;
+  }
+
+#define free_page_aligned_alloc(base_address) ExFreePoolWithTag(base_address, HV_POOL_TAG)
 
 }; // namespace ia32e::mm
