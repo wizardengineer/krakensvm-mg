@@ -272,12 +272,14 @@ namespace vmcb
 
   typedef struct _vcpu_ctx_fmt_t
   {
+
     __declspec(align(PAGE_SIZE)) vmcb_64_t guest_vmcb;
     __declspec(align(PAGE_SIZE)) vmcb_64_t host_vmcb;
 
     __declspec(align(PAGE_SIZE)) uint8_t host_state_area[PAGE_SIZE];
 
     uint64_t guest_vmcb_pa;
+    _vcpu_ctx_fmt_t* self;
 
     uint64_t msrpm_pa; // Physical Address of "MSR Permission Maps"
   } vcpu_ctx_t, * pvcpu_ctx_t;

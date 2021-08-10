@@ -147,12 +147,16 @@ namespace ia32e::mm
       uint64_t phys_addr: 40; // Physical address of 4-KByte aligned page-directory-pointer table referenced by this entry
       uint64_t avail    : 7;  // Available
       uint64_t cr4_pke  : 4;
-      uint64_t efer_nxe : 1;  // If IA32_EFER.NXE = 1, execute-disable 4_t 
+      uint64_t efer_nxe : 1;  // If IA32_EFER.NXE = 1, execute-disable 4_t
     };
   } pte_t, *ppte_t;
 
   static_assert(sizeof(_pte_fmt_t) == 8,
                   "Size of PTE is not Valid");
+
+  //
+  // Allocate Page of NonPaged Pools
+  //
 
   template<size U>
   auto page_aligned_alloc(U bytes_number) -> void*
@@ -160,7 +164,7 @@ namespace ia32e::mm
     void* ptr_memory;
     ptr_memory = ExAllocatePoolWithTag(NonPagedPool, bytes_number, HV_POOL_TAG);
 
-    if (ptr_memory != nullptr)
+    if (ptr_memory != nullptr && PAGE_ALIGN(ptr_memory) == ptr_memory)
     {
       memset(ptr_memory, 0, bytes_number);
     }
@@ -168,5 +172,11 @@ namespace ia32e::mm
   }
 
 #define free_page_aligned_alloc(base_address) ExFreePoolWithTag(base_address, HV_POOL_TAG)
+
+  //
+  // Allocate Pools of Contigous memory
+  //
+
+  auto contiguous_alloc(size_t bytes_number) -> void*;
 
 }; // namespace ia32e::mm

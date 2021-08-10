@@ -27,17 +27,64 @@
 
 #include <hv_util.hpp>
 #include <vmcb.hpp>
+#include <krakensvm.hpp>
 
-auto vminstructions_handler(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> bool;
-// auto vmload_handler        (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> bool;
-// auto vmsave_handler        (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> bool;
-auto cpuid_handler         (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> bool;
-auto msr_handler           (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> bool;
+//
+// #VMEXIT Handler
+//
 
-auto vmexit_handler        (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> bool;
+// vminstructions_handler Substitutes having a vmload_handler, vmsave_handler and vmrun_handler
+auto vminstructions_handler(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
+auto vmmcall_handler       (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void;
+auto msr_handler           (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void;
+auto vmexit_handler        (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> bool;
+
+auto setup_msrpermissions_bitmap (void* msrpermission_map) noexcept -> void;
 
 //
 // Event Injection
 //
+
+// Injecting General Protection
+auto inject_gp             (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
+
+// Injection Invalid Opcode
+auto inject_ud             (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
+
+// Injecting Page Fault, Purely made as an example of doing a page fault injection
+auto inject_pf             (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
+
+typedef union event_injection
+{
+  uint64_t value;
+
+  event_injection() : value(0) {}
+
+  struct
+  {
+    // VECTOR—Bits 7:0. The 8-bit IDT vector of the interrupt or exception. If TYPE is 2 (NMI), the
+    // VECTOR field is ignored.
+    uint64_t vector  : 8;
+
+    // TYPE—Bits 10:8. Qualifies the guest exception or interrupt to generate. Table 15-11 shows
+    // possible valuesand their corresponding interrupt or exception types.Values not indicated are
+    // unused and reserved.
+    uint64_t type    : 3;
+
+    // EV (Error Code Valid)—Bit 11. Set to 1 if the exception should push an error code onto the stack;
+    // clear to 0 otherwise.
+    uint64_t err_val : 1;
+
+    // Reserved, SBZ 
+    uint64_t sbz     : 19;
+
+    // V (Valid)—Bit 31. Set to 1 if an event is to be injected into the guest; clear to 0 otherwise.
+    uint64_t valid   : 1;
+
+    // ERRORCODE—Bits 63:32. If EV is set to 1, the error code to be pushed onto the stack, ignored
+    // otherwise.
+    uint64_t err_code: 32;
+  };
+} event_injection, *pevent_injection;
 
 

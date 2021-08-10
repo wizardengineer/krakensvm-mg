@@ -28,14 +28,14 @@
 .code
 
 ;
-; @brief      it like pushad but for 64 bit registers...got this from tandasat :^)
+; @brief      it like pushad but for 64 bit registers
 ;
 
 pushaq_m macro
     push  rax
+    push  rbx
     push  rcx
     push  rdx
-    push  -1
     push  rbp
     push  rsi
     push  rdi
@@ -62,10 +62,9 @@ popaq_m macro
     pop  rdi
     pop  rsi
     pop  rbp
-    pop  rbx    ; Dummy for rsp (this value is destroyed by the next pop).
-    pop  rbx
     pop  rdx
     pop  rcx
+    pop  rbx
     pop  rax
 endm
 

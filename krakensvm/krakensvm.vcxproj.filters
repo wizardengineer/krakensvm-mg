@@ -36,6 +36,12 @@
     <ClCompile Include="ia32e\descriptors_info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="svm\vmexit_handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ia32e\paging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\hv_util.hpp">
@@ -54,6 +60,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ia32e\segment_intrins.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\vmexit_handler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

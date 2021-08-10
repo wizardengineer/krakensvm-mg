@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 #include <type_traits>
+#include <functional>
 
 
 namespace svm
@@ -52,4 +53,11 @@ namespace svm
   static auto svm_support_checking() noexcept -> bool;
   auto svm_enabling               () noexcept -> void;
   auto svm_disabling              () noexcept -> void;
+
+  // Generic type R represent the return value
+  template<class R, class param>
+  auto exec_each_processors(std::function<R(param)> function) noexcept -> void;
+
+  // Virtualize each processor
+  auto virt_each_processors() noexcept -> void;
 }; // namespace svm

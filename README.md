@@ -2,17 +2,19 @@ KrakenSvm
 
 # Motativation
 This was apart of my "Understanding of OS theoretical concepts" and emulator series. I had a great amount of fun with project, if you're interested in AMD virtualization then read chapter 15 of the amd manual 
+A simple x86_64 AMD-v hypervisor type-2, with syscall and paging hooks. Programmed with some C++20 features.
 
-A simple x86_64 AMD-v hypervisor type-2, with syscall and paging hooks. Programmed with C++
-
+HUGE thanks to xerox for allowing me to post to post on his website <3
 # Table of Contents:
 * [Preamble](#preamble)
    * [Purpose & Intentions](#purpose--intentions) 
    * [Support](#support)
+   * [What are use cases of a hypervisor?](#what-are-use-cases-of-a-hypervisor)
    <!-- for #purpose talk about why you did this,
 		the lack of resource they had for this.-->
 * [Terminology](#terminology)
-<!-- Add a introduction later on, once you start writing a blog-->
+<!-- Add a introduction later on, once you start writing a blog 
+     POST PICTURE AND CODE SNIPPETS. Don't forget!!!!!-->
 
 * [Overview - KrakenSvm Hypervisor](#overview)
    * [SVM Semantics](#hv_semantics)
@@ -53,22 +55,24 @@ and helpful for any others whom might decide to make a AMD HyperVisor.
 Me having been new to HyperVisor programming, I'll struggle quite a lot making sure to all VMWare to support Nest Virtualization.
 In order to test KrakenSvm in VMWARE make sure to follow these steps
 
-## Terminology
+<!-- this should have more spacing, and remove VMCB and add it to when you're write about the -->
+## Terminology 
    * **World Switch** - is the act of switching between Host and Guest. The host will excute VMRUN to start-up or run the Guest. The sequence would usually be Host -> Guest -> Host 
    * **vCPUs or CPUs** - when the intel or amd manual discusses about a VMM having a CPUs. It's referring to it having CPU Cores, rather than single entity of your CPU
    * **Nest Page Table (NPT)** -
    * **Intercepting** - 
    * **Virtual Memory Control Block (VMCB)** - For intel this would be called VMCS
    * **Trap Frames** - 
+   * **Hypercalls** -
 
 ## Credit - Special Thanks:
   Thanks to these OGs, for the spark of inspiration/support and just being good friend overall on my continuous effort on this project and for helping me understand certain concepts within HyperVisor development Journey. =)
-  * [xeroxz](https://twitter.com/_xeroxz?lang=en) - helping explain concepts around HV and allowing me to use his code semantics for his amazing Hypervisor project
-  * [Daax](https://twitter.com/daax_rynd) - his big brain coming in clutch like always. Having given me a great layout on the semantics of a AMD HyperVisor
+  * [xeroxz](https://twitter.com/_xeroxz?lang=en) - Helping explain concepts around HV and allowing me to use his code semantics for his amazing Hypervisor project
+  * [Daax](https://twitter.com/daax_rynd) - His big brain coming in clutch like always. He's given me a great layout on the semantics of a AMD HyperVisor and his approach on it, sharing resources left and right. Even answered my most trivial questions. Daax never misses
   * **horsie** - sharing some resource
   * [tandasat](https://github.com/tandasat/SimpleSvm/)
-  * [Irql0](https://github.com/irql0) - explaining certain Windows kernel driver and OS concepts
-  * [iPower](https://github.com/iPower) - sharing a approach to hooking System Calls
+  * [Irql0](https://github.com/irql0) - explaining certain Windows kernel driver, OS concepts and getting me out of tough assembly problems
+  * [iPower](https://github.com/iPower) - sharing an approach to hooking System Calls
   * [LLE](https://discord.gg/MvtdVcUsJs) members (i.g. Larry, sleepy, frosty)
   * [Jason](https://github.com/johnsonjason)
    

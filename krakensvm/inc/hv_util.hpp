@@ -90,20 +90,58 @@ inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
 #define ia32_pat        0x00000277
 
 //
-// VCPU Register Info
+// CPU Register Info, a small subset of a full blown guest register struct
 // 
-  typedef struct _register_ctx_fmt_t
-  {
-    uint64_t rax;
-    uint64_t rip;
-    uint64_t rsp;
-    uint64_t eflag;
+typedef struct _register_ctx_fmt_t
+{
+  uint64_t rax;
+  uint64_t rip;
+  uint64_t rsp;
+  uint64_t eflag;
 
-    inline _register_ctx_fmt_t() : rax(0),
-                                   rip(__readrip()),
-                                   rsp(__readrsp()),
-                                   eflag(__readeflags()){}
-  } register_ctx_t, * pregister_ctx_;
+  inline _register_ctx_fmt_t() : rax(0),
+                                 rip(__readrip()),
+                                 rsp(__readrsp()),
+                                 eflag(__readeflags()){}
+} register_ctx_t, * pregister_ctx_;
+
+//
+// Guest Register Info
+//
+typedef struct _guest_reg_ctx_fmt_t
+{
+  _guest_reg_ctx_fmt_t() = default;
+
+  uint64_t  r15;
+  uint64_t  r14;
+  uint64_t  r13;
+  uint64_t  r12;
+  uint64_t  r11;
+  uint64_t  r10;
+  uint64_t  r9;
+  uint64_t  r8;
+  uint64_t  rdi;
+  uint64_t  rsi;
+  uint64_t  rbp;
+  uint64_t  rdx;
+  uint64_t  rcx;
+  uint64_t  rbx;
+  uint64_t  rax;
+} guest_reg_ctx_t, *pguest_reg_ctx_t;
+
+
+//
+// Guest Register Info and VMEXIT status
+//
+typedef struct _guest_status_fmt_t
+{
+  _guest_status_fmt_t() = default;
+
+  pguest_reg_ctx_t guest_registers;
+  bool vmexit_status;
+
+  _guest_status_fmt_t() : vmexit_status(false) {}
+} guest_status_t, *pguest_status_t;
 
 //
 // VMEXIT Reasons; SVM Intercept Codes

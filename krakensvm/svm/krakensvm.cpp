@@ -25,11 +25,15 @@
 
 #include <krakensvm.hpp>
 #include <hv_util.hpp>
+#include <paging.hpp>
+#include <vmcb.hpp>
 
 /*
  * Before enabling SVM, software should detect whether SVM can be enabled using
  * the following algorithm
  */
+
+using namespace ia32e;
 
 namespace svm
 {
@@ -132,5 +136,17 @@ namespace svm
     {
       KdPrint(("[!] EFER.SVME is already disable"));
     }
+  }
+
+  //
+  // Virualize all processors
+  //
+
+  auto virt_each_processors() noexcept -> void
+  {
+    mm::contiguous_alloc(PAGE_SIZE * 2);
+    vmcb::virt_cpu_init();
+
+    _deallocation:
   }
 }; // namespace svm

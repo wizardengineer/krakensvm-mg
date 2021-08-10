@@ -27,5 +27,17 @@
 
 namespace ia32e::mm
 {
-  
+  //
+  // Allocate Pools of Contigous memory
+  //
+
+  auto contiguous_alloc(size_t bytes_number) -> void*
+  {
+    void* memory = nullptr;
+    memory = MmAllocateContiguousMemory(bytes_number, (PHYSICAL_ADDRESS)-1);
+
+    if (memory != nullptr) { memset(memory, 0, bytes_number); }
+
+    return memory;
+  }
 }; // namespace ia32e::mm

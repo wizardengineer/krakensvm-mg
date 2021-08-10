@@ -57,8 +57,7 @@ namespace vmcb
 
     vcpu_data->guest_vmcb
       .control_area.intercept_misc_vector_4 |= INTERCEPT_VMRUN |
-                                               INTERCEPT_EFER;
-                                               
+                                               INTERCEPT_EFER;                                          
 
     vcpu_data->guest_vmcb.control_area.guest_asid = 1;
 
@@ -138,6 +137,11 @@ namespace vmcb
 
     vcpu_data->guest_vmcb_pa = guest_vmcb_pa;
 
+    // Make sure it point to it self, so I use it later
+    // in vmexecute.asm
+
+    vcpu_data->self = vcpu_data;
+
     __svm_vmsave(guest_vmcb_pa);
 
     __writemsr(vm_hsave_pa, MmGetPhysicalAddress(&vcpu_data->host_state_area).QuadPart);
@@ -145,8 +149,6 @@ namespace vmcb
     __svm_vmsave(host_vmcb_pa);
     
   }
-
-#define free_page_aligned_alloc(base_address) ExFreePoolWithTag(base_address, HV_POOL_TAG)
 
   auto virt_cpu_init() noexcept -> void
   {
