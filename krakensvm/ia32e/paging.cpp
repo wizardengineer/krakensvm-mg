@@ -34,10 +34,17 @@ namespace ia32e::mm
   auto contiguous_alloc(size_t bytes_number) -> void*
   {
     void* memory = nullptr;
-    memory = MmAllocateContiguousMemory(bytes_number, (PHYSICAL_ADDRESS)-1);
+    PHYSICAL_ADDRESS highest;
+
+    // this may not work on older verison of windows,
+    // such as Win7
+
+    highest.QuadPart = -1;
+    memory = MmAllocateContiguousMemory(bytes_number, highest);
 
     if (memory != nullptr) { memset(memory, 0, bytes_number); }
 
     return memory;
   }
+
 }; // namespace ia32e::mm

@@ -67,9 +67,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="inc\asm_inc.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
     <MASM Include="svm\vmexecute.asm">
       <Filter>Source Files</Filter>
     </MASM>

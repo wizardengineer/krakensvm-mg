@@ -32,6 +32,7 @@
 #include <intrin.h>
 #include <basetsd.h>
 #include <type_traits>
+#include <stdarg.h>  
 #include <segment_intrins.h>
 
 extern "C" void _sgdt(void*);
@@ -39,6 +40,12 @@ extern "C" void _sgdt(void*);
 
 uint64_t __readeflags(void);
 #pragma intrinsic(__readeflags)
+
+//
+// Simple Logging Print
+//
+
+auto kprint_info(const char* format, ...) noexcept -> void;
 
 //
 // CPUID
@@ -79,7 +86,7 @@ inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
 // Extended Feature Enable Register (EFER)
 
 #define ia32_efer       0xC0000080
-#define ia32_efer_svme  0x1000        // this will set the 13 bit of EFER
+#define ia32_efer_svme  0x1000        // this will set the 13 bit of EFER, in other words (1UL << 12)
 
 // Virtual Machine Host Save State Physical Addres (VM_HSAVE_PA)
 
@@ -99,10 +106,10 @@ typedef struct _register_ctx_fmt_t
   uint64_t rsp;
   uint64_t eflag;
 
-  inline _register_ctx_fmt_t() : rax(0),
-                                 rip(__readrip()),
-                                 rsp(__readrsp()),
-                                 eflag(__readeflags()){}
+  _register_ctx_fmt_t() : rax(0),
+                          rip(0),
+                          rsp(0),
+                          eflag(0){}
 } register_ctx_t, * pregister_ctx_;
 
 //
@@ -135,12 +142,11 @@ typedef struct _guest_reg_ctx_fmt_t
 //
 typedef struct _guest_status_fmt_t
 {
-  _guest_status_fmt_t() = default;
-
   pguest_reg_ctx_t guest_registers;
   bool vmexit_status;
 
-  _guest_status_fmt_t() : vmexit_status(false) {}
+  _guest_status_fmt_t() : vmexit_status(false),
+                          guest_registers(nullptr){}
 } guest_status_t, *pguest_status_t;
 
 //
@@ -155,7 +161,7 @@ typedef struct _guest_status_fmt_t
 // I.E. for x in range(32):print(f"_EXCP{x}_WRITE = {hex(x+0x40)},")
 // it makes life easier
 
-enum VMEXIT : uint16_t
+enum VMEXIT : int16_t
 {
   // VMEXIT_CR[0–15]_READ; read of CR 0 through 15, respectively
   _CR0_READ   = 0x0,
@@ -470,5 +476,7 @@ enum VMEXIT : uint16_t
   // VMEXIT_BUSY; BUSY bit was set in the encrypted VMSA (see "Interrupt
   // Injection Restrictions")
   _BUSY            = -2
-}; 
+};
+
+
 

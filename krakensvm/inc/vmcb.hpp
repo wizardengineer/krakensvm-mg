@@ -124,7 +124,7 @@ namespace vmcb
     uint64_t virtual_misc_vector;             // +0x060
     uint64_t interrupt_misc_vector;           // +0x068
     uint64_t exitcode;                        // +0x070
-    uint64_t exitinto1;                       // +0x078
+    uint64_t exitinfo1;                       // +0x078
     uint64_t exitinfo2;                       // +0x080
     uint64_t exitintinfo;                     // +0x088
 
@@ -266,6 +266,18 @@ namespace vmcb
 
   } vmcb_64_t, *pvmcb_64_t;
 
+
+  //
+  // Paging Info and MSRPM Pointer
+  //
+
+  typedef struct _paging_data
+  {
+    void* msrpm_addr; // "MSR Permission Maps"
+
+    _paging_data() : msrpm_addr(nullptr) {}
+  } paging_data, * ppaging_data;
+
   //
   // VCPU Specific data 
   //
@@ -279,12 +291,14 @@ namespace vmcb
     __declspec(align(PAGE_SIZE)) uint8_t host_state_area[PAGE_SIZE];
 
     uint64_t guest_vmcb_pa;
+    uint64_t host_vmcb_pa;
     _vcpu_ctx_fmt_t* self;
+    _paging_data* self_shared_page_info;
 
-    uint64_t msrpm_pa; // Physical Address of "MSR Permission Maps"
   } vcpu_ctx_t, * pvcpu_ctx_t;
 
 
-  auto create_virt_prep(pvcpu_ctx_t vcpu_data, register_ctx_t& host_info) noexcept -> void;
-  auto virt_cpu_init   () noexcept -> void;
-};
+
+  auto vmcb_prepartion (pvcpu_ctx_t vcpu_data, register_ctx_t& host_info, ppaging_data sharded_page_info) noexcept -> void;
+  auto virt_cpu_init   (ppaging_data shared_page_info) noexcept -> bool;
+}; // namespace vmcb

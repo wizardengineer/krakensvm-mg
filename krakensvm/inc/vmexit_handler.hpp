@@ -28,16 +28,23 @@
 #include <hv_util.hpp>
 #include <vmcb.hpp>
 #include <krakensvm.hpp>
+#include <paging.hpp>
 
 //
 // #VMEXIT Handler
 //
 
+// auto vmmcall_handler       (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void;
+
 // vminstructions_handler Substitutes having a vmload_handler, vmsave_handler and vmrun_handler
 auto vminstructions_handler(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
-auto vmmcall_handler       (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void;
-auto msr_handler           (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void;
-auto vmexit_handler        (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> bool;
+auto cpuid_handler         (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t& guest_status) noexcept -> void;
+auto msr_handler           (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t& guest_status) noexcept -> void;
+
+extern "C"
+{
+auto vmexit_handler        (vmcb::pvcpu_ctx_t vcpu_data, pguest_reg_ctx_t guest_regs)  noexcept -> bool;
+}
 
 auto setup_msrpermissions_bitmap (void* msrpermission_map) noexcept -> void;
 
@@ -45,13 +52,13 @@ auto setup_msrpermissions_bitmap (void* msrpermission_map) noexcept -> void;
 // Event Injection
 //
 
-// Injecting General Protection
+// Injecting #GP General Protection
 auto inject_gp             (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
 
-// Injection Invalid Opcode
+// Injection #UD Invalid Opcode
 auto inject_ud             (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
 
-// Injecting Page Fault, Purely made as an example of doing a page fault injection
+// Injecting #PF Page Fault, Purely made as an example of doing a page fault injection
 auto inject_pf             (vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
 
 typedef union event_injection

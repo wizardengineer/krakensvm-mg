@@ -46,14 +46,19 @@ NTSTATUS driver_entry(
 //  RtlInitUnicodeString(dos_device_name, L"\\DosDevices\\KrakenSvm");
 
 	driver_object->DriverUnload = driver_unloading;
-  vmcb::virt_cpu_init();
+
+  if (svm::virt_each_processors() == false)
+  {
+    KdPrint(("[-] Failed to virtualize each processor!"));
+  }
+
 	return STATUS_SUCCESS;
 }
 
 static void driver_unloading(PDRIVER_OBJECT driver_object)
 {
   driver_object;
-
+  svm::devirt_each_processors();
 	KdPrint(("driver unloading\n"));
 }
 

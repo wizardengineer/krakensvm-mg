@@ -30,13 +30,31 @@ using namespace ia32e;
 
 namespace vmcb
 {
-  
+  //
+  // Manages the hypervisor vendor ID signature Installation
+  //
+
+  static bool hypervisor_vendor_id_installed()
+  {
+    char vendor_id[13] = {};
+    int32_t registers[4] = {};
+
+    // The cpuid will return "MeddyWasHere" in the VMEXIT Handler after this first usage
+    // cpuid in this function
+    __cpuid(registers, (int)svm::cpuid_e::hypervisor_vendor_id);
+    memcpy(vendor_id + 0, &registers[1], sizeof(registers[1]));
+    memcpy(vendor_id + 4, &registers[2], sizeof(registers[2]));
+    memcpy(vendor_id + 8, &registers[3], sizeof(registers[3]));
+    vendor_id[12] = char(0);
+
+    return ( strcmp(vendor_id, "MeddyWasHere") == 0 );
+  }
 
   //
   // Preparation for the Virtualization of the processor
   //
 
-  auto create_virt_prep(pvcpu_ctx_t vcpu_data, register_ctx_t& host_info) noexcept -> void
+  auto vmcb_prepartion(pvcpu_ctx_t vcpu_data, register_ctx_t& host_info, ppaging_data shared_page_info) noexcept -> void
   {
     uint64_t host_vmcb_pa = {}, guest_vmcb_pa = {}, msrpm_vmcb_pa = {};
     seg::descriptor_reg_64_t gdtr_ptr, idtr_ptr;
@@ -65,7 +83,7 @@ namespace vmcb
 
     guest_vmcb_pa = MmGetPhysicalAddress(&vcpu_data->guest_vmcb).QuadPart;
 
-    msrpm_vmcb_pa = MmGetPhysicalAddress(&vcpu_data->msrpm_pa).QuadPart;
+    msrpm_vmcb_pa = MmGetPhysicalAddress(shared_page_info->msrpm_addr).QuadPart;
 
     //
     // Descriptor Table Registers / Segment Registers & Control Registers & GP Registers
@@ -124,8 +142,6 @@ namespace vmcb
     vcpu_data->guest_vmcb.save_state.cr3 = uint64_t(__readcr3());
     vcpu_data->guest_vmcb.save_state.cr4 = uint64_t(__readcr4());
     vcpu_data->guest_vmcb.save_state.efer = uint64_t(__readmsr(ia32_efer));
-
-    // RtlCaptureContext(callee_ctx);
     
     // GP Register (where they're suppose to be initialize)
     vcpu_data->guest_vmcb.save_state.rsp = host_info.rsp;
@@ -136,11 +152,13 @@ namespace vmcb
     vcpu_data->guest_vmcb.save_state.g_pat = __readmsr(ia32_pat);
 
     vcpu_data->guest_vmcb_pa = guest_vmcb_pa;
+    vcpu_data->host_vmcb_pa  = host_vmcb_pa;
 
     // Make sure it point to it self, so I use it later
     // in vmexecute.asm
 
     vcpu_data->self = vcpu_data;
+    vcpu_data->self_shared_page_info = shared_page_info;
 
     __svm_vmsave(guest_vmcb_pa);
 
@@ -150,40 +168,69 @@ namespace vmcb
     
   }
 
-  auto virt_cpu_init() noexcept -> void
-  {
-    pvcpu_ctx_t vcpu_data { nullptr };
-    register_ctx_t host_info;
+#pragma warning(push)
+#pragma warning( disable : 6001 )
+#pragma warning( disable : 6387 )
 
-    inline auto exit_exec = []<class T>(T* data)
-    {
-      free_page_aligned_alloc(data);
-      return;
-    };
+  auto virt_cpu_init(ppaging_data shared_page_info) noexcept -> bool
+  {
+    register_ctx_t host_info;
+    pvcpu_ctx_t vcpu_data {};
+    bool status = true;
 
     vcpu_data = reinterpret_cast<pvcpu_ctx_t>
       ( mm::page_aligned_alloc(sizeof(vcpu_ctx_t)) );
 
+    //__debugbreak();
+
     if (vcpu_data == nullptr) [[unlikely]]
     {
-      exit_exec(vcpu_data);
+      status = false;
+      goto _deallocation;
     }
 
-    svm::svm_enabling();
-    create_virt_prep(vcpu_data, host_info);
-    svmlaunch(&vcpu_data->guest_vmcb_pa);
-
-    //while (1)
-    //{
-    // __svm_vmrun(vcpu_data->guest_vmcb_pa);
-    // __svm_vmsave(vcpu_data->guest_vmcb_pa);
-    // __svm_vmload(vcpu_data->guest_vmcb_pa);
-    //}
+    host_info.rip   = __readrip();
+    host_info.eflag = __readeflags();
+    host_info.rsp   = __readrsp();
+    
+    if (hypervisor_vendor_id_installed() != true)
+    {
+      svm::svm_enabling(); 
+      
+      vmcb_prepartion(vcpu_data, host_info, shared_page_info);
+      kprint_info("VMCB Data Structure finished Initializing.\n");
 
 #if defined(_DEBUG)
-    __debugbreak();
+      kprint_info<uint64_t>("Host Register Info:\n\tRSP = %X, RIP = %X, EFLAG = %X \n",
+        host_info.rsp, host_info.rip, host_info.eflag);
 #endif
 
-    KeBugCheck(MANUALLY_INITIATED_CRASH);
+      svmlaunch(&vcpu_data->guest_vmcb_pa);
+
+      //while (1)
+      //{
+      // __svm_vmrun(vcpu_data->guest_vmcb_pa);
+      // __svm_vmsave(vcpu_data->guest_vmcb_pa);
+      // __svm_vmload(vcpu_data->guest_vmcb_pa);
+      //}
+
+#if defined(_DEBUG)
+      __debugbreak();
+#endif
+
+      KeBugCheck(MANUALLY_INITIATED_CRASH);
+    }
+
+    kprint_info("Processor has been Virtualized! Yessir...\n");
+
+  _deallocation:
+    if (!status && vcpu_data != nullptr)
+    {
+      free_page_aligned_alloc(vcpu_data);
+    }
+    return status;
   }
-};
+
+#pragma pop
+
+}; // namespace vmcb

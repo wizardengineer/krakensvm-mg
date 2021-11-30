@@ -4,7 +4,7 @@ KrakenSvm
 This was apart of my "Understanding of OS theoretical concepts" and emulator series. I had a great amount of fun with project, if you're interested in AMD virtualization then read chapter 15 of the amd manual 
 A simple x86_64 AMD-v hypervisor type-2, with syscall and paging hooks. Programmed with some C++20 features.
 
-HUGE thanks to xerox for allowing me to post to post on his website <3
+HUGE thanks to xerox for allowing me to post to his website <3
 # Table of Contents:
 * [Preamble](#preamble)
    * [Purpose & Intentions](#purpose--intentions) 

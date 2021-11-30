@@ -25,13 +25,14 @@
 
 ; simple include file that simple my ia32e assembly programming
 
+.const
+
 SELF_OFFSET equ 3008h
 
-include ../inc/asm_inc.asm
+.code
 
 extern vmexit_handler : proc
 
-.code
 svmlaunch proc
     mov rsp, rcx 
 
@@ -50,65 +51,135 @@ svm_loop:
     ; Make sure this is saved because host code will
     ; destroy it
 
-    ; The stack decreased by 8 * 15
-    pushaq_m
+    ; The stack decreased by 8 * 15 after all the pushes
+    ; been executed
+    push  rax
+    push  rbx
+    push  rcx
+    push  rdx
+    push  rbp
+    push  rsi
+    push  rdi
+    push  r8
+    push  r9
+    push  r10
+    push  r11
+    push  r12
+    push  r13
+    push  r14
+    push  r15
 
-    ; Set up the arguments that being taken by vmexit_handler
+    ; Note that before the pushes of those 15 registers (rax...r15), the value of the 
+    ; RSP pointed at the address of "guest_vmcb_pa".
+    ;
+    ; Now this is our current stack state is looking like so far, after the pushes of  
+    ; those 15 registers (rax...r15).
+    ; -----------------------------------------------------------------------------------------
+    ; RSP Points at     -> 0xff...df0 -> R15          : the start of what "pguest_reg_ctx_t" struct 
+    ;                                                   will be point to.
+    ;                   -> 0xff...df8 -> R14          :
+    ;			  	          -> 0xff...e00 -> R13          :
+    ;				   	                 ...                  :              
+    ;			              -> 0xff...e60 -> RAX          :
+    ; RSP + 8*15        -> 0xff...e68 -> guest_vmcb_pa: 4th data member in the "vcpu_ctx_t" struct
+    ; 				          -> 0xff...e70 -> host_vmcb_pa : 5th data member in the "vcpu_ctx_t" struct
+    ; RSP + 8*16+8      -> 0xff...e78 -> self         : 6th data member in the "vcpu_ctx_t" struct
+    ;
+    ; -----------------------------------------------------------------------------------------
+    ;
+    ; We'll need to understand the state of our stack so we can set our parameters of the 
+    ; function "vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data, pguest_reg_ctx_t guest_regs)". 
+    ; 
+    ; -----------------------------------------------------------------------------------------
+
+    ; Set up the arguments that being taken by vmexit_handler, rdx will be the second argument "guest_regs"
     mov rdx, rsp
 
-    mov rcx, [rsp + 8 * 15 + SELF_OFFSET]
-    ; Allocate space for the 16 register XMM register, along
-    ; with homing space
-    sub rsp, 0x120
+    ; 88h == 8 * 16 + 8
+    ; It is took me so long to find the offset to the *self,
+    ; but thanks to the greatness of Windbg i was able to
+    ; find the offset.
+
+    mov rcx, [rsp + 88h]
+
+    ; Allocate space for the 16 register XMM register
+    sub rsp, 108h
 
     movaps [rsp], xmm0
-    movaps [rsp + 10h], xmm1
-    movaps [rsp + 20h], xmm2
-    movaps [rsp + 30h], xmm3
-    movaps [rsp + 40h], xmm4
-    movaps [rsp + 50h], xmm5
-    movaps [rsp + 60h], xmm6
-    movaps [rsp + 70h], xmm7
-    movaps [rsp + 80h], xmm8
-    movaps [rsp + 90h], xmm9
-    movaps [rsp + 0Ah], xmm10
-    movaps [rsp + 0Bh], xmm11
-    movaps [rsp + 0Ch], xmm12
-    movaps [rsp + 0Dh], xmm13
-    movaps [rsp + 0Eh], xmm14
-    movaps [rsp + 0Fh], xmm15
+    movaps [rsp + 010h], xmm1
+    movaps [rsp + 020h], xmm2
+    movaps [rsp + 030h], xmm3
+    movaps [rsp + 040h], xmm4
+    movaps [rsp + 050h], xmm5
+    movaps [rsp + 060h], xmm6
+    movaps [rsp + 070h], xmm7
+    movaps [rsp + 080h], xmm8
+    movaps [rsp + 090h], xmm9
+    movaps [rsp + 0A0h], xmm10
+    movaps [rsp + 0B0h], xmm11
+    movaps [rsp + 0C0h], xmm12
+    movaps [rsp + 0D0h], xmm13
+    movaps [rsp + 0E0h], xmm14
+    movaps [rsp + 0F0h], xmm15
+
+
+
+    ; 0x20 bytes to for the homing space, storage of
+    ; non-volatile registers
+    sub rsp, 20h
 
     ; Call the C-level #VMEXIT Handler
     call vmexit_handler
+    add rsp, 20h
 
     ; Restore the XMM registers
     movaps xmm0, [rsp]
-    movaps xmm1, [rsp + 10h]
-    movaps xmm2, [rsp + 20h]
-    movaps xmm3, [rsp + 30h]
-    movaps xmm4, [rsp + 40h]
-    movaps xmm5, [rsp + 50h]
-    movaps xmm6, [rsp + 60h]
-    movaps xmm7, [rsp + 70h]
-    movaps xmm8, [rsp + 80h]
-    movaps xmm9, [rsp + 90h]
-    movaps xmm10, [rsp + 0Ah]
-    movaps xmm11, [rsp + 0Bh]
-    movaps xmm12, [rsp + 0Ch]
-    movaps xmm13, [rsp + 0Dh]
-    movaps xmm14, [rsp + 0Eh]
-    movaps xmm15, [rsp + 0Fh]
+    movaps xmm1, [rsp + 010h]
+    movaps xmm2, [rsp + 020h]
+    movaps xmm3, [rsp + 030h]
+    movaps xmm4, [rsp + 040h]
+    movaps xmm5, [rsp + 050h]
+    movaps xmm6, [rsp + 060h]
+    movaps xmm7, [rsp + 070h]
+    movaps xmm8, [rsp + 080h]
+    movaps xmm9, [rsp + 090h]
+    movaps xmm10, [rsp + 0A0h]
+    movaps xmm11, [rsp + 0B0h]
+    movaps xmm12, [rsp + 0C0h]
+    movaps xmm13, [rsp + 0D0h]
+    movaps xmm14, [rsp + 0E0h]
+    movaps xmm15, [rsp + 0F0h]
 
     ; Deallocate space for 16 register XMM register
-    add rsp, 0x120
+    add rsp, 108h
 
     test al, al
-    popaq_m
 
+    pop  r15
+    pop  r14
+    pop  r13
+    pop  r12
+    pop  r11
+    pop  r10
+    pop  r9
+    pop  r8
+    pop  rdi
+    pop  rsi
+    pop  rbp
+    pop  rdx
+    pop  rcx
+    pop  rbx
+    pop  rax
+
+    jnz svm_terminate
     jmp svm_loop
 
 svm_terminate:
     mov rsp, rcx
+
+    mov ecx, 'KRKN'
+
+    jmp rbx
 svmlaunch endp
 
 END

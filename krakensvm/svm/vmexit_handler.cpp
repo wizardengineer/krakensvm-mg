@@ -25,6 +25,8 @@
 
 #include <vmexit_handler.hpp>
 
+using namespace ia32e;
+
 // Injecting General Protection 
 auto inject_gp(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
 
@@ -44,11 +46,72 @@ auto vminstructions_handler(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void
   inject_gp(vcpu_data);
 }
 
-auto vmcall_handler(vmcb::pvcpu_ctx_t vcpu_data,
+/* This was gonna to be used as a way to unload the driver, but i decided to use
+ * to use CPUID instead. After I had a better understand of it's interception
+
+auto vmmcall_handler(vmcb::pvcpu_ctx_t vcpu_data,
                    guest_status_t guest_status) noexcept -> void
 {
   if (guest_status.guest_registers->r14 != 'KREN')
   { inject_ud(vcpu_data); }
+}
+*/
+
+auto cpuid_handler(vmcb::pvcpu_ctx_t vcpu_data,
+                   guest_status_t& guest_status) noexcept -> void
+{
+  int registers[4] = {};
+  int leaf {}, subleaf {};
+
+  seg::segment_attribute_64_t attribute;
+  attribute.value = vcpu_data->guest_vmcb.save_state.ss.attribute;
+
+  leaf    = static_cast<int>(guest_status.guest_registers->rax);
+  subleaf = static_cast<int>(guest_status.guest_registers->rcx);
+
+  __cpuidex(registers, leaf,  subleaf);
+
+  switch(leaf)
+  {
+
+    // checking a magic value from CPUID to see if a request if coming
+    // from the ring 0. This will be used for unloading the driver. 
+    case static_cast<int>(svm::cpuid_e::unload_feature):
+      if (subleaf == static_cast<int>(svm::cpuid_e::unload_feature) && attribute.dpl == 0) // 0 being the System DPL
+      { guest_status.vmexit_status = true; }
+      break;
+
+    // checks if the leaf is 1, an indicator to determine if the machine
+    // is running under a Hypervisor
+    case static_cast<int>(svm::cpuid_e::processor_feature_id):
+      registers[2] |= static_cast<int>(svm::cpuid_e::hypervisor_present_ex);
+      break;
+
+    // add our HV interface identifier
+    case static_cast<int>(svm::cpuid_e::hypervisor_interface):
+      registers[0] = '0#vH';
+      break;
+
+    // this case will be executed after an instance of it was initiated
+    // by the `hypervisor_vendor_id_installed` function in "svm/vmcb.cpp"
+    case static_cast<int>(svm::cpuid_e::hypervisor_vendor_id):
+      // The maximum input value for hypervisor CPUID information
+      registers[0] = 0x40000001; 
+      registers[1] = 'ddeM';
+      registers[2] = 'saWy';
+      registers[1] = 'ereH';
+      break;
+  }
+
+
+
+  guest_status.guest_registers->rax = registers[0];
+  guest_status.guest_registers->rbx = registers[1];
+  guest_status.guest_registers->rcx = registers[2];
+  guest_status.guest_registers->rdx = registers[3];
+
+  vcpu_data->guest_vmcb.save_state.rip = vcpu_data->guest_vmcb.control_area.n_rip;
+    
 }
 
 // Setting up the MSR Permission bitmap, to filter out the MSRs I want
@@ -69,8 +132,7 @@ auto setup_msrpermissions_bitmap(void* msrpermission_map) noexcept -> void
 
   RtlClearAllBits(&msr_bitmaps);
 
-  // this wasn't fully understood by me, even after looking into the functions and
-  // doing the calculations
+  // Set the bit to indicating write access should be intercepted 
   constexpr uint64_t offset_2nd_base = (ia32_efer - msr_range_base) * bits_per_msr;
   constexpr uint64_t offset          = offset_2nd_base + size_of_vectors;
   RtlSetBits(&msr_bitmaps, offset + 1, 1);
@@ -78,17 +140,61 @@ auto setup_msrpermissions_bitmap(void* msrpermission_map) noexcept -> void
 }
 
 auto msr_handler(vmcb::pvcpu_ctx_t vcpu_data,
-                 guest_status_t guest_status) noexcept -> void
+                 guest_status_t& guest_status) noexcept -> void
 {
+  // The MSR value will be held in ecx_value
+  uint32_t ecx_value = {};
+  uint64_t msr_value = {};
+  bool write_access  = (vcpu_data->guest_vmcb.control_area.exitinfo1 == 1ul);
 
+  // Get the MSR that's been intercepted, which is stored in RCX
+  ecx_value = guest_status.guest_registers->rcx & 0xffffffff;
+
+  bool msr_ranges    = ( (ecx_value <= 0x00001fff) || (ecx_value <= 0xC0000000) ||
+                         (ecx_value <= 0xC0001fff));
+
+  msr_value = guest_status.guest_registers->rax & 0xffffffff |
+              guest_status.guest_registers->rdx & 0xffffffff;
+
+  if (ecx_value == ia32_efer && write_access) [[likely]]
+  {
+    if ((msr_value & ia32_efer_svme) == 0)
+    {
+      inject_gp(vcpu_data);
+    }
+
+    vcpu_data->guest_vmcb.save_state.efer = msr_value;
+  }
+  else if (ecx_value != ia32_efer && msr_ranges) [[unlikely]]
+  {
+    // If the MSR aka ecx_value is something other than EFER for any reason
+    // then proceed to manage the RDMSR/WRMSR for that unspecified MSR.
+    // I specified for only EFER to be intercepted, so this "else if" is most
+    // likely not going to be executed.
+
+    if (write_access)
+    {
+      __writemsr(ecx_value, msr_value);
+    }
+    else
+    {
+      uint64_t readmsr_value = __readmsr(ecx_value);
+      guest_status.guest_registers->rax = readmsr_value & 0xffffffff;
+      guest_status.guest_registers->rdx = readmsr_value >> 32 & 0xffffffff;
+    }
+  }
+
+  vcpu_data->guest_vmcb.save_state.rip = vcpu_data->guest_vmcb.control_area.n_rip;
 }
 
-auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
-                    pguest_reg_ctx_t guest_registers) noexcept -> bool
+extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
+                               pguest_reg_ctx_t guest_regs) noexcept -> bool
 {
   guest_status_t current_guest_status;
 
-  current_guest_status.guest_registers = guest_registers;
+  current_guest_status.guest_registers = guest_regs;
+
+  __svm_vmload(vcpu_data->host_vmcb_pa);
 
   switch (vcpu_data->guest_vmcb.control_area.exitcode)
   {
@@ -108,19 +214,40 @@ auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
       msr_handler(vcpu_data, current_guest_status);
       break;
 
-    case VMEXIT::_VMMCALL:
-      vminstructions_handler(vcpu_data);
+    case VMEXIT::_CPUID:
+      cpuid_handler(vcpu_data, current_guest_status);
       break;
 
-    return current_guest_status.vmexit_status;
-
+    default:
+      __debugbreak();
   }
 
+  if (current_guest_status.vmexit_status == true)
+  {
+    current_guest_status.guest_registers->rax = reinterpret_cast<uint64_t>(vcpu_data) & 0xffffffff;
+    current_guest_status.guest_registers->rbx = vcpu_data->guest_vmcb.control_area.n_rip;
+    current_guest_status.guest_registers->rcx = vcpu_data->guest_vmcb.save_state.rsp;
+    current_guest_status.guest_registers->rdx = reinterpret_cast<uint64_t>(vcpu_data) & 0xffffffff;
 
-  _disable();
+    // Load back the guest state back in the processor
+    __svm_vmload(vcpu_data->guest_vmcb_pa);
 
-  // Disabling EFER.SVME
-  svm::svm_disabling();
+    // Disable interrupts than set the GIF (global interrupt flag)
+    _disable();
+    // https://docs.microsoft.com/en-us/cpp/intrinsics/svm-stgi?view=msvc-160
+    __svm_stgi();
+
+    // Disabling EFER.SVME and restore guest RFLAGS
+    svm::svm_disabling();
+    __writeeflags(vcpu_data->guest_vmcb.save_state.rflags);
+
+    return current_guest_status.vmexit_status;
+  }
+
+  // Save guest rax since it'll be overwritten by host memory
+  guest_regs->rax = vcpu_data->guest_vmcb.save_state.rax;
+
+  return current_guest_status.vmexit_status;
 }
 
 //

@@ -179,4 +179,6 @@ namespace ia32e::mm
 
   auto contiguous_alloc(size_t bytes_number) -> void*;
 
+#define free_contiguous_alloc(base_address) MmFreeContiguousMemory(base_address)
+
 }; // namespace ia32e::mm
