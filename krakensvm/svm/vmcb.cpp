@@ -74,8 +74,8 @@ namespace vmcb
                                                //INTERCEPT_FERR_FRE;
 
     vcpu_data->guest_vmcb
-      .control_area.intercept_misc_vector_4 |= INTERCEPT_VMRUN |
-                                               INTERCEPT_EFER;                                          
+      .control_area.intercept_misc_vector_4 |= INTERCEPT_VMRUN;//|
+                                               //INTERCEPT_EFER;                                          
 
     vcpu_data->guest_vmcb.control_area.guest_asid = 1;
 
@@ -114,27 +114,27 @@ namespace vmcb
 
     const auto [es_base, es_attr] = seg::segment_info(gdtr_ptr, __reades());
     vcpu_data->guest_vmcb.save_state.es.base_addr = es_base;
-    vcpu_data->guest_vmcb.save_state.es.attribute = es_attr;
+    vcpu_data->guest_vmcb.save_state.es.attribute.value = es_attr;
 
     const auto [cs_base, cs_attr] = seg::segment_info(gdtr_ptr, __readcs());
     vcpu_data->guest_vmcb.save_state.cs.base_addr = cs_base;
-    vcpu_data->guest_vmcb.save_state.cs.attribute = cs_attr;
+    vcpu_data->guest_vmcb.save_state.cs.attribute.value = cs_attr;
 
     const auto [ss_base, ss_attr] = seg::segment_info(gdtr_ptr, __readss());
     vcpu_data->guest_vmcb.save_state.ss.base_addr = ss_base;
-    vcpu_data->guest_vmcb.save_state.ss.attribute = ss_attr;
+    vcpu_data->guest_vmcb.save_state.ss.attribute.value = ss_attr;
 
     const auto [ds_base, ds_attr] = seg::segment_info(gdtr_ptr, __readds());
     vcpu_data->guest_vmcb.save_state.ds.base_addr = ds_base;
-    vcpu_data->guest_vmcb.save_state.ds.attribute = ds_attr;
+    vcpu_data->guest_vmcb.save_state.ds.attribute.value = ds_attr;
 
     const auto [fs_base, fs_attr] = seg::segment_info(gdtr_ptr, __readfs());
     vcpu_data->guest_vmcb.save_state.fs.base_addr = fs_base;
-    vcpu_data->guest_vmcb.save_state.fs.attribute = fs_attr;
+    vcpu_data->guest_vmcb.save_state.fs.attribute.value = fs_attr;
 
     const auto [gs_base, gs_attr] = seg::segment_info(gdtr_ptr, __readgs());
     vcpu_data->guest_vmcb.save_state.gs.base_addr = gs_base;
-    vcpu_data->guest_vmcb.save_state.gs.attribute = gs_attr;
+    vcpu_data->guest_vmcb.save_state.gs.attribute.value = gs_attr;
 
     // Control Registers
     vcpu_data->guest_vmcb.save_state.cr0 = uint64_t(__readcr0());

@@ -31,6 +31,14 @@
 #include <paging.hpp>
 
 //
+// Debugger Information, function will be located in:
+//            "svm/debugger_info.cpp"
+// Canonicalization and Consistency Checks
+//
+
+auto vmexit_invalid_dump   (const char* from, vmcb::pvcpu_ctx_t vmcb_data) noexcept -> void;
+
+//
 // #VMEXIT Handler
 //
 

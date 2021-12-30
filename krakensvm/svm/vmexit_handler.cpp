@@ -64,7 +64,7 @@ auto cpuid_handler(vmcb::pvcpu_ctx_t vcpu_data,
   int leaf {}, subleaf {};
 
   seg::segment_attribute_64_t attribute;
-  attribute.value = vcpu_data->guest_vmcb.save_state.ss.attribute;
+  attribute.value = vcpu_data->guest_vmcb.save_state.ss.attribute.value;
 
   leaf    = static_cast<int>(guest_status.guest_registers->rax);
   subleaf = static_cast<int>(guest_status.guest_registers->rcx);
@@ -109,6 +109,8 @@ auto cpuid_handler(vmcb::pvcpu_ctx_t vcpu_data,
   guest_status.guest_registers->rbx = registers[1];
   guest_status.guest_registers->rcx = registers[2];
   guest_status.guest_registers->rdx = registers[3];
+
+  //kprint_info("EAX: %lx, EBX: %lx, ECX: %lx, EDX: %lx\n", registers[0], registers[1], registers[2], registers[3]);
 
   vcpu_data->guest_vmcb.save_state.rip = vcpu_data->guest_vmcb.control_area.n_rip;
     
@@ -216,6 +218,10 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
 
     case VMEXIT::_CPUID:
       cpuid_handler(vcpu_data, current_guest_status);
+      break;
+
+    case VMEXIT::_INVALID:
+      vmexit_invalid_dump(__func__, vcpu_data);
       break;
 
     default:

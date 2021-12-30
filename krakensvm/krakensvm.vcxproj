@@ -173,12 +173,14 @@
   <ItemGroup>
     <ClCompile Include="ia32e\descriptors_info.cpp" />
     <ClCompile Include="ia32e\paging.cpp" />
+    <ClCompile Include="svm\debugger_info.cpp" />
     <ClCompile Include="svm\vmcb.cpp" />
     <ClCompile Include="kdriver.cpp" />
     <ClCompile Include="svm\krakensvm.cpp" />
     <ClCompile Include="svm\vmexit_handler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ia32e\control_registers.hpp" />
     <ClInclude Include="ia32e\descriptors_info.hpp" />
     <ClInclude Include="ia32e\paging.hpp" />
     <ClInclude Include="ia32e\segment_intrins.h" />

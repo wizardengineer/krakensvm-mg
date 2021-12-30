@@ -32,6 +32,7 @@
 #include <hv_util.hpp>
 
 extern "C" void svmlaunch(uint64_t* guestvmcb_pa);
+using namespace ia32e::seg;
 
 namespace vmcb
 {
@@ -184,11 +185,12 @@ namespace vmcb
   //
   // segment registers in VMCB Save State Struct data members
   //
-
+  
   struct seg_register
   {
+    
     uint16_t selector;
-    uint16_t attribute;
+    segment_attribute_64_t attribute;
     uint32_t limit;
     uint64_t base_addr;
   };
