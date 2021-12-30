@@ -42,6 +42,9 @@
     <ClCompile Include="ia32e\paging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="svm\debugger_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\hv_util.hpp">
@@ -63,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\vmexit_handler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32e\control_registers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

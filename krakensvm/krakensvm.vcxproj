@@ -128,11 +128,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <IncludePath>C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\ia32e;$(VC_IncludePath);C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ia32e;$(VC_IncludePath);$(ProjectDir)inc;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <IncludePath>C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\ia32e;$(VC_IncludePath);C:\Users\17543\Documents\Projects\hypervisor_mg\krakensvm\krakensvm\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ia32e;$(VC_IncludePath);$(ProjectDir)inc;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>

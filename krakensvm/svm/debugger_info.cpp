@@ -56,6 +56,7 @@ auto vmexit_invalid_dump(const char* from, vmcb::pvcpu_ctx_t vmcb_data) noexcept
                                                        "Is Not Zero - INVALID\n");
   // Checks Any MBZ bit of CR3 is set
   kprint_info("*\tCR3 => VALUE: %i; Reserved MBZ %s",
+    vmcb_data->guest_vmcb.save_state.cr3,
     vmcb_data->guest_vmcb.save_state.cr3 >> 52U == 0 ? "Is Zero\n" :
                                                        "Is Not Zero - INVALID\n");
   // Checks Any MBZ bit of CR4 is set
