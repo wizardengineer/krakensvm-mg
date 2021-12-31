@@ -185,7 +185,7 @@ namespace vmcb
   //
   // segment registers in VMCB Save State Struct data members
   //
-  
+
   struct seg_register
   {
     
@@ -260,13 +260,19 @@ namespace vmcb
   static_assert(sizeof(save_state_64_t) == 0x2e8,
                   "Size does not match up with the VMCB Control Area");
 
+  static const size_t RESERVED_SIZE
+    = PAGE_SIZE - sizeof(control_area_64_t) - sizeof(save_state_64_t);
+
   typedef
     struct vmcb_fmt_t
   {
     control_area_64_t control_area;
     save_state_64_t   save_state;
-
+    uint8_t reserved[RESERVED_SIZE];
   } vmcb_64_t, *pvmcb_64_t;
+
+  static_assert(sizeof(vmcb_64_t) == 0x1000, "VMCB Size Mismatch");
+
 
 
   //

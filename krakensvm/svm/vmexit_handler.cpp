@@ -99,7 +99,7 @@ auto cpuid_handler(vmcb::pvcpu_ctx_t vcpu_data,
       registers[0] = 0x40000001; 
       registers[1] = 'ddeM';
       registers[2] = 'saWy';
-      registers[1] = 'ereH';
+      registers[3] = 'ereH';
       break;
   }
 

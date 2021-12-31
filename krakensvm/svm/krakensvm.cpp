@@ -29,6 +29,8 @@
 #include <paging.hpp>
 #include <vmcb.hpp>
 
+extern "C" NTSYSAPI NTSTATUS NTAPI ZwYieldExecution();
+
 /*
  * Before enabling SVM, software should detect whether SVM can be enabled using
  * the following algorithm
@@ -287,6 +289,7 @@ namespace svm
       affinity.Mask = (KAFFINITY)1ull << processor_number.Number;
 
       KeSetSystemGroupAffinityThread(&affinity, &old_affinity);
+      ZwYieldExecution();
 
       status = function(arguments);
       KeRevertToUserGroupAffinityThread(&old_affinity);
