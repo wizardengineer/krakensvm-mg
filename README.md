@@ -11,7 +11,7 @@ This was apart of my "Understanding of OS theoretical concepts" and emulator ser
   * [tandasat](https://github.com/tandasat/SimpleSvm/)
   * [Irql0](https://github.com/irql0) - explaining certain Windows kernel driver, OS concepts and getting me out of tough assembly problems
   * [iPower](https://github.com/iPower) - sharing an approach to hooking System Calls and helping fix my VMCB issues
-  * [Matthias](https://github.com/not-matthias) - For providing information on how to fix my alignment issue 
+  * [Matthias](https://github.com/not-matthias) - For providing information on how to  lead me on to fixing a VMEXIT_INVALID bug i came across and for going out of his way to even debug my HyperVisor. Thank you so much 
   * [LLE](https://discord.gg/MvtdVcUsJs) members (i.g. Larry, sleepy, frosty)
   * [Jason](https://github.com/johnsonjason)
    

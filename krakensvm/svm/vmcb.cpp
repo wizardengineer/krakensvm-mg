@@ -176,7 +176,6 @@ namespace vmcb
   {
     register_ctx_t host_info;
     pvcpu_ctx_t vcpu_data { nullptr };
-    PCONTEXT    context_record{ nullptr };
     bool status = true;
 
     vcpu_data = reinterpret_cast<pvcpu_ctx_t>
@@ -190,14 +189,9 @@ namespace vmcb
       goto _deallocation;
     }
 
-    context_record = static_cast<PCONTEXT>(ExAllocatePoolWithTag(
-      NonPagedPool, sizeof(CONTEXT), 'VHGM'));
-
-    RtlCaptureContext(context_record);
-
-    host_info.rip   = context_record->Rip;
-    host_info.eflag = context_record->EFlags;
-    host_info.rsp   = context_record->Rsp;
+    host_info.rip   = __readrip();
+    host_info.eflag = __readeflags();
+    host_info.rsp   = __readrsp();
     
     if (hypervisor_vendor_id_installed() != true)
     {
@@ -230,10 +224,6 @@ namespace vmcb
     kprint_info("Processor has been Virtualized! Yessir...\n");
 
   _deallocation:
-    if (context_record != nullptr)
-    {
-      ExFreePoolWithTag(context_record, 'VHGM');
-    }
     if (!status && vcpu_data != nullptr)
     {
       free_page_aligned_alloc(vcpu_data);

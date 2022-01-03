@@ -51,7 +51,7 @@ svm_loop:
     ; Make sure this is saved because host code will
     ; destroy it
 
-    ; The stack decreased by 8 * 15 after all the pushes
+    ; The stack decreased by 8 * 16 after all the pushes
     ; been executed
     push  rax
     push  rbx
@@ -102,56 +102,36 @@ svm_loop:
 
     mov rcx, [rsp + 88h]
 
-    ; Allocate space for the 16 register XMM register
-    sub rsp, 108h
+    ; Allocate space for the 6 register XMM register
+    sub rsp, 88h
 
-    movaps [rsp], xmm0
-    movaps [rsp + 010h], xmm1
-    movaps [rsp + 020h], xmm2
-    movaps [rsp + 030h], xmm3
-    movaps [rsp + 040h], xmm4
-    movaps [rsp + 050h], xmm5
-    movaps [rsp + 060h], xmm6
-    movaps [rsp + 070h], xmm7
-    movaps [rsp + 080h], xmm8
-    movaps [rsp + 090h], xmm9
-    movaps [rsp + 0A0h], xmm10
-    movaps [rsp + 0B0h], xmm11
-    movaps [rsp + 0C0h], xmm12
-    movaps [rsp + 0D0h], xmm13
-    movaps [rsp + 0E0h], xmm14
-    movaps [rsp + 0F0h], xmm15
+    movaps [rsp + 010h], xmm0
+    movaps [rsp + 020h], xmm1
+    movaps [rsp + 030h], xmm2
+    movaps [rsp + 040h], xmm3
+    movaps [rsp + 050h], xmm4
+    movaps [rsp + 060h], xmm5
 
 
 
     ; 0x20 bytes to for the homing space, storage of
     ; non-volatile registers
-    sub rsp, 20h
+    ;sub rsp, 20h
 
     ; Call the C-level #VMEXIT Handler
     call vmexit_handler
-    add rsp, 20h
+    ;add rsp, 20h
 
     ; Restore the XMM registers
-    movaps xmm0, [rsp]
-    movaps xmm1, [rsp + 010h]
-    movaps xmm2, [rsp + 020h]
-    movaps xmm3, [rsp + 030h]
-    movaps xmm4, [rsp + 040h]
-    movaps xmm5, [rsp + 050h]
-    movaps xmm6, [rsp + 060h]
-    movaps xmm7, [rsp + 070h]
-    movaps xmm8, [rsp + 080h]
-    movaps xmm9, [rsp + 090h]
-    movaps xmm10, [rsp + 0A0h]
-    movaps xmm11, [rsp + 0B0h]
-    movaps xmm12, [rsp + 0C0h]
-    movaps xmm13, [rsp + 0D0h]
-    movaps xmm14, [rsp + 0E0h]
-    movaps xmm15, [rsp + 0F0h]
+    movaps xmm0, [rsp + 010h]
+    movaps xmm1, [rsp + 020h]
+    movaps xmm2, [rsp + 030h]
+    movaps xmm3, [rsp + 040h]
+    movaps xmm4, [rsp + 050h]
+    movaps xmm5, [rsp + 060h]
 
-    ; Deallocate space for 16 register XMM register
-    add rsp, 108h
+    ; Deallocate space for 6 register XMM register
+    add rsp, 88h
 
     test al, al
 

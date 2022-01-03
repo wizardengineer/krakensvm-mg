@@ -195,8 +195,14 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
   guest_status_t current_guest_status;
 
   current_guest_status.guest_registers = guest_regs;
-
+  
   __svm_vmload(vcpu_data->host_vmcb_pa);
+
+  // I've been stuck on a bug (VMEXIT_INVALID) for not adding this one line.
+  // So this happened because the Guest Rax is overrwritten by host value on
+  // the execution of #VMEXIT. Guest Rax value is stored on the Guest VMCB instead
+  //
+  current_guest_status.guest_registers->rax = vcpu_data->guest_vmcb.save_state.rax;
 
   switch (vcpu_data->guest_vmcb.control_area.exitcode)
   {

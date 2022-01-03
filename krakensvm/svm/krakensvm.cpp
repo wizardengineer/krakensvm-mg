@@ -169,7 +169,7 @@ namespace svm
       {
         if (completed_processor >= 1)
         {
-          //devirt_each_processors();
+          devirt_each_processors();
         }
         else {
           free_page_aligned_alloc(shared_page_info);
