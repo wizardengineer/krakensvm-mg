@@ -137,7 +137,7 @@ namespace svm
   {
     if ((__readmsr(ia32_efer) >> 12) & 1) [[likely]]
     {
-      __writemsr(ia32_efer, ia32_efer & ~(1 << 12));
+      __writemsr(ia32_efer, __readmsr(ia32_efer) & ~(1 << 12));
       kprint_info("EFER.SVME is disable.\n");
     }
     else [[unlikely]]
