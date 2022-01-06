@@ -74,8 +74,8 @@ namespace vmcb
                                                //INTERCEPT_FERR_FRE;
 
     vcpu_data->guest_vmcb
-      .control_area.intercept_misc_vector_4 |= INTERCEPT_VMRUN;//|
-                                               //INTERCEPT_EFER;                                          
+      .control_area.intercept_misc_vector_4 |= INTERCEPT_VMRUN |
+                                               INTERCEPT_VMMCALL;
 
     vcpu_data->guest_vmcb.control_area.guest_asid = 1;
 

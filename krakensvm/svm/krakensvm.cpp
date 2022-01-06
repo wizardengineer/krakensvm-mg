@@ -130,25 +130,6 @@ namespace svm
   }
 
   //
-  // Disables the EFER.SVME
-  //
-
-  auto svm_disabling() noexcept -> void
-  {
-    if ((__readmsr(ia32_efer) >> 12) & 1) [[likely]]
-    {
-      __writemsr(ia32_efer, __readmsr(ia32_efer) & ~(1 << 12));
-      kprint_info("EFER.SVME is disable.\n");
-    }
-    else [[unlikely]]
-    {
-      kprint_info("EFER.SVME is already disable.\n");
-    }
-  }
-
-
-
-  //
   // Virualize all processors
   //
 
@@ -236,7 +217,7 @@ namespace svm
 
     vcpu_data = reinterpret_cast<pvcpu_ctx_t>(high << 32 | low);
 
-    shared_page_ptr = reinterpret_cast<ppaging_data*>(shared_context);
+    shared_page_ptr = static_cast<ppaging_data*>(shared_context);
     *shared_page_ptr = vcpu_data->self_shared_page_info;
     free_page_aligned_alloc(vcpu_data);
 

@@ -69,7 +69,8 @@ inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
 
 // Vector 010H
 #define INTERCEPT_VMRUN    (1UL << 0)  // Intercept VMRUN instruction.
-#define INTERCEPT_EFER     (1UL << 15) // Intercept VMRUN instruction.
+#define INTERCEPT_VMMCALL  (1UL << 1)  // Intercept VMMCALL instruction.
+#define INTERCEPT_EFER     (1UL << 15) // Intercept EFER instruction.
 
 
 // 
@@ -86,7 +87,11 @@ inline void __cpuidex(int[CPUID_MAX_REGS], int, int);
 // Extended Feature Enable Register (EFER)
 
 #define ia32_efer       0xC0000080
-#define ia32_efer_svme  0x1000        // this will set the 13 bit of EFER, in other words (1UL << 12)
+#define ia32_efer_svme  0x1000        // this will set the 13 bit of EFER (if we're counting starting from 1),
+                                      // in other words (1UL << 12)
+
+// Long System Target-Address Register (LSTAR)
+#define ia32_lstar      0xC0000082
 
 // Virtual Machine Host Save State Physical Addres (VM_HSAVE_PA)
 

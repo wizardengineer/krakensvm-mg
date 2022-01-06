@@ -134,10 +134,17 @@ auto setup_msrpermissions_bitmap(void* msrpermission_map) noexcept -> void
 
   RtlClearAllBits(&msr_bitmaps);
 
-  // Set the bit to indicating write access should be intercepted 
+  // Set the bit to indicating write access should be intercepted for EFER MSR
   constexpr uint64_t offset_2nd_base = (ia32_efer - msr_range_base) * bits_per_msr;
   constexpr uint64_t offset          = offset_2nd_base + size_of_vectors;
   RtlSetBits(&msr_bitmaps, offset + 1, 1);
+
+  // Set the bit to indicating write/read access should be intercepted for LSTAR MSR
+  constexpr uint64_t offset_2nd_base = (ia32_lstar - msr_range_base) * bits_per_msr;
+  constexpr uint64_t offset = offset_2nd_base + size_of_vectors;
+
+  RtlSetBits(&msr_bitmaps, offset, 1);    // setting the read access
+  RtlSetBits(&msr_bitmaps, offset + 1, 1);// setting the write access
 
 }
 
@@ -185,7 +192,7 @@ auto msr_handler(vmcb::pvcpu_ctx_t vcpu_data,
       guest_status.guest_registers->rdx = readmsr_value >> 32 & 0xffffffff;
     }
   }
-
+    // SvHandleVmmcall
   vcpu_data->guest_vmcb.save_state.rip = vcpu_data->guest_vmcb.control_area.n_rip;
 }
 
@@ -250,7 +257,8 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
     __svm_stgi();
 
     // Disabling EFER.SVME and restore guest RFLAGS
-    svm::svm_disabling();
+    //svm::svm_disabling();
+    __writemsr(ia32_efer, __readmsr(ia32_efer) & ~(1 << 12));
     __writeeflags(vcpu_data->guest_vmcb.save_state.rflags);
 
     return current_guest_status.vmexit_status;

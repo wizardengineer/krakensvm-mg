@@ -23,8 +23,6 @@
 ; SOFTWARE.
 ;
 
-; simple include file that simple my ia32e assembly programming
-
 .const
 
 SELF_OFFSET equ 3008h
