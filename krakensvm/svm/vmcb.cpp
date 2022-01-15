@@ -160,6 +160,10 @@ namespace vmcb
     vcpu_data->self = vcpu_data;
     vcpu_data->self_shared_page_info = shared_page_info;
 
+    // For the Syscall hooking, get original LSTAR value before
+    // going into virtualization
+    vcpu_data->original_lstar = __readmsr(ia32_lstar);
+
     __svm_vmsave(guest_vmcb_pa);
 
     __writemsr(vm_hsave_pa, MmGetPhysicalAddress(&vcpu_data->host_state_area).QuadPart);

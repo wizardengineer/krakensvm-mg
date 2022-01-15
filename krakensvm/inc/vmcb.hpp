@@ -303,6 +303,9 @@ namespace vmcb
     _vcpu_ctx_fmt_t* self;
     _paging_data* self_shared_page_info;
 
+    // For syscall hook
+    uint64_t original_lstar;
+
   } vcpu_ctx_t, * pvcpu_ctx_t;
 
 

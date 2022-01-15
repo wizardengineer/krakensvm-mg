@@ -45,6 +45,9 @@
     <ClCompile Include="svm\debugger_info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="hooks\syscall_hook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\hv_util.hpp">
@@ -71,6 +74,9 @@
     <ClInclude Include="ia32e\control_registers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hooks\syscall_hook.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="svm\vmexecute.asm">
@@ -81,7 +87,6 @@
     </MASM>
   </ItemGroup>
   <ItemGroup>
-    <None Include="hooks\.keep" />
     <None Include=".gitignore" />
   </ItemGroup>
 </Project>

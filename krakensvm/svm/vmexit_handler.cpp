@@ -140,13 +140,22 @@ auto setup_msrpermissions_bitmap(void* msrpermission_map) noexcept -> void
   RtlSetBits(&msr_bitmaps, offset + 1, 1);
 
   // Set the bit to indicating write/read access should be intercepted for LSTAR MSR
-  constexpr uint64_t offset_2nd_base = (ia32_lstar - msr_range_base) * bits_per_msr;
-  constexpr uint64_t offset = offset_2nd_base + size_of_vectors;
+  constexpr uint64_t offset_3nd_base = (ia32_lstar - msr_range_base) * bits_per_msr;
+  constexpr uint64_t offset1         = offset_3nd_base + size_of_vectors;
 
   RtlSetBits(&msr_bitmaps, offset, 1);    // setting the read access
   RtlSetBits(&msr_bitmaps, offset + 1, 1);// setting the write access
 
 }
+
+extern "C" void test_simple()
+{
+  kprint_info("HOOKED WORKED");
+  return;
+};
+
+//template<>
+//static auto msr_read_manager(uint32_t msr_value) -> void;
 
 auto msr_handler(vmcb::pvcpu_ctx_t vcpu_data,
                  guest_status_t& guest_status) noexcept -> void
@@ -165,34 +174,62 @@ auto msr_handler(vmcb::pvcpu_ctx_t vcpu_data,
   msr_value = guest_status.guest_registers->rax & 0xffffffff |
               guest_status.guest_registers->rdx & 0xffffffff;
 
-  if (ecx_value == ia32_efer && write_access) [[likely]]
+  switch(ecx_value)
   {
-    if ((msr_value & ia32_efer_svme) == 0)
-    {
-      inject_gp(vcpu_data);
-    }
+    case ia32_efer:
+      if (write_access) [[likely]]
+      {
+        if ((msr_value & ia32_efer_svme) == 0)
+        {
+          inject_gp(vcpu_data);
+        }
 
-    vcpu_data->guest_vmcb.save_state.efer = msr_value;
-  }
-  else if (ecx_value != ia32_efer && msr_ranges) [[unlikely]]
-  {
-    // If the MSR aka ecx_value is something other than EFER for any reason
-    // then proceed to manage the RDMSR/WRMSR for that unspecified MSR.
-    // I specified for only EFER to be intercepted, so this "else if" is most
-    // likely not going to be executed.
+        vcpu_data->guest_vmcb.save_state.efer = msr_value;
+      }
+      break;
 
-    if (write_access)
-    {
-      __writemsr(ecx_value, msr_value);
-    }
-    else
-    {
-      uint64_t readmsr_value = __readmsr(ecx_value);
-      guest_status.guest_registers->rax = readmsr_value & 0xffffffff;
-      guest_status.guest_registers->rdx = readmsr_value >> 32 & 0xffffffff;
-    }
+    case ia32_lstar:
+      if (write_access)
+      {
+        //kprint_info("THERE WAS A IA32_LSTAR WRITE!!!");
+        if (msr_value == vcpu_data->original_lstar)
+        {
+          msr_value = (uint64_t)&test_simple;
+        }
+        __writemsr(ia32_lstar, msr_value);
+      }
+      else
+      {
+        //kprint_info("THERE WAS A IA32_LSTAR READ!!!");
+        if (vcpu_data->original_lstar)
+        {
+          msr_value = vcpu_data->original_lstar;
+        }
+        else { msr_value = __readmsr(ia32_lstar); }
+      }
+      break;
+
+    default:
+      if (msr_ranges) [[unlikely]]
+      {
+        // If the MSR aka ecx_value is something other than EFER for any reason
+        // then proceed to manage the RDMSR/WRMSR for that unspecified MSR.
+        // I specified for only EFER to be intercepted, so this "else if" is most
+        // likely not going to be executed.
+
+        if (write_access)
+        {
+          __writemsr(ecx_value, msr_value);
+        }
+        else
+        {
+          uint64_t readmsr_value = __readmsr(ecx_value);
+          guest_status.guest_registers->rax = readmsr_value & 0xffffffff;
+          guest_status.guest_registers->rdx = readmsr_value >> 32 & 0xffffffff;
+        }
+      }
   }
-    // SvHandleVmmcall
+  
   vcpu_data->guest_vmcb.save_state.rip = vcpu_data->guest_vmcb.control_area.n_rip;
 }
 
@@ -210,6 +247,14 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
   // the execution of #VMEXIT. Guest Rax value is stored on the Guest VMCB instead
   //
   current_guest_status.guest_registers->rax = vcpu_data->guest_vmcb.save_state.rax;
+
+  // Simple Hook test
+  if (__readmsr(ia32_lstar) == vcpu_data->original_lstar)
+  {
+    __writemsr(ia32_lstar, (uint64_t)&test_simple);
+    //kprint_info("CHANGED THE VALUE OF ");
+  }
+  
 
   switch (vcpu_data->guest_vmcb.control_area.exitcode)
   {

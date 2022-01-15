@@ -8,11 +8,10 @@ This was apart of my "Understanding of OS theoretical concepts" and emulator ser
   * [xeroxz](https://twitter.com/_xeroxz?lang=en) - Helping explain concepts around HV and allowing me to use his code semantics for his amazing Hypervisor project
   * [Daax](https://twitter.com/daax_rynd) - His big brain coming in clutch like always. He's given me a great layout on the semantics of a AMD HyperVisor and his approach on it, sharing resources left and right. Even answered my most trivial questions. Daax never misses
   * **horsie** - sharing some resource
-  * [tandasat](https://github.com/tandasat/SimpleSvm/)
+  * [tandasat](https://github.com/tandasat/SimpleSvm/) - Amazing resource
   * [Irql0](https://github.com/irql0) - explaining certain Windows kernel driver, OS concepts and getting me out of tough assembly problems
   * [iPower](https://github.com/iPower) - sharing an approach to hooking System Calls and helping fix my VMCB issues
-  * [Matthias](https://github.com/not-matthias) - For providing information on how to  lead me on to fixing a VMEXIT_INVALID bug i came across and for going out of his way to even debug my HyperVisor. Thank you so much 
-  * [LLE](https://discord.gg/MvtdVcUsJs) members (i.g. Larry, sleepy, frosty)
+  * [Matthias](https://github.com/not-matthias) - For providing information that lead me on to fixing a VMEXIT_INVALID bug i came across and for going out of his way to even debug my HyperVisor to point logic issues and errors. Thank you so much 
   * [Jason](https://github.com/johnsonjason)
    
  ## Reference - Resource I relied on:
@@ -24,7 +23,8 @@ This was apart of my "Understanding of OS theoretical concepts" and emulator ser
    * [Irql Hypervisor](https://github.com/irql0/limevisor)
    * [VMM Intercepts](https://performancebydesign.blogspot.com/2017/12/hyper-v-architecture-intercepts.html)
    * [Kernel Play Guide - AMD-V](https://nskernel.gitbook.io/kernel-play-guide/kvm/amd-v-and-sev)
-   
+   * [System calls on Windows x64](https://www.n4r1b.com/posts/2019/03/system-calls-on-windows-x64/)
+   * [[windows] kernel internals](https://www.matteomalvica.com/minutes/windows_kernel/)
  <!-- 
  for any unknown understandings
   - windows stack ABI = https://www.gamasutra.com/view/news/178446/Indepth_Windows_x64_ABI_Stack_frames.php

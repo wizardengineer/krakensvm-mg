@@ -23,8 +23,9 @@
 * SOFTWARE.
 */
 
+#pragma once
+
 #include <hv_util.hpp>
-#include <syscall_hook.hpp>
 
 namespace hk
 {

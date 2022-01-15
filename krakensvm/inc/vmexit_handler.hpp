@@ -42,7 +42,7 @@ auto vmexit_invalid_dump   (const char* from, vmcb::pvcpu_ctx_t vmcb_data) noexc
 // #VMEXIT Handler
 //
 
-auto vmmcall_handler       (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void;
+//   vmmcall_handler       (vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void;
 
 // vminstructions_handler Substitutes having a vmload_handler, vmsave_handler and vmrun_handler
 auto vminstructions_handler(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;

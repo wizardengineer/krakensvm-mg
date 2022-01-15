@@ -171,6 +171,7 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="hooks\syscall_hook.cpp" />
     <ClCompile Include="ia32e\descriptors_info.cpp" />
     <ClCompile Include="ia32e\paging.cpp" />
     <ClCompile Include="svm\debugger_info.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="svm\vmexit_handler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hooks\syscall_hook.hpp" />
     <ClInclude Include="ia32e\control_registers.hpp" />
     <ClInclude Include="ia32e\descriptors_info.hpp" />
     <ClInclude Include="ia32e\paging.hpp" />
@@ -195,7 +197,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
-    <None Include="hooks\.keep" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
