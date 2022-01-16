@@ -24,8 +24,11 @@
 */
 
 #include <vmexit_handler.hpp>
+#include <syscall_hook.hpp>
 
 using namespace ia32e;
+
+uint64_t original_KiSystemCallAddress = {};
 
 // Injecting General Protection 
 auto inject_gp(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
@@ -248,10 +251,12 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
   //
   current_guest_status.guest_registers->rax = vcpu_data->guest_vmcb.save_state.rax;
 
+  original_KiSystemCallAddress = vcpu_data->original_lstar;
+
   // Simple Hook test
   if (__readmsr(ia32_lstar) == vcpu_data->original_lstar)
   {
-    __writemsr(ia32_lstar, (uint64_t)&test_simple);
+    __writemsr(ia32_lstar, (uint64_t)&MyKiSystemCall64Hook);
     //kprint_info("CHANGED THE VALUE OF ");
   }
   

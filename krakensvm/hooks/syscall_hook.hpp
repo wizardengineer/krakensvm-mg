@@ -27,6 +27,9 @@
 
 #include <hv_util.hpp>
 
+extern "C"
+int MyKiSystemCall64Hook(uint64_t KiSystemCall64_Addr);
+
 namespace hk
 {
 

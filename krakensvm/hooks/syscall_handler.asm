@@ -29,19 +29,56 @@
 
 .const
 
-GS_BASE equ 01h
+GS_USER_STACK     equ   010h
+GS_KERNEL_STACK   equ  01A8h
+MAX_SYSCALL_INDEX equ 01000h
 
 .code
 
 extern test_simple : proc
+extern original_KiSystemCallAddress : dq
 
-MyKiSystemCall64 proc
+MyKiSystemCall64Hook proc
 
     ; Swap GS base with Kernel PCR
     swapgs
 
+    ; Save the user stack pointer
+    mov gs:[GS_USER_STACK], rsp
+
+    mov rsp, gs:[GS_KERNEL_STACK]
+    push 02Bh
+    push qword ptr gs:[GS_USER_STACK]
+    push r11
+    push 33h
 
 
+    ; Checks to see if array index is greater than
+    ; Array size.
+    cmp rax, MAX_SYSCALL_INDEX
+
+    jg ExitPoint
+
+    ; The stack decreased by 8 * 16 after all the pushes
+    ; been executed
+    push  rax
+    push  rbx
+    push  rcx
+    push  rdx
+    push  rbp
+    push  rsi
+    push  rdi
+    push  r8
+    push  r9
+    push  r10
+    push  r11
+    push  r12
+    push  r13
+    push  r14
+    push  r15
+
+    
+    
     ; Allocate space for the 6 register XMM register
     sub rsp, 88h
 
@@ -69,11 +106,33 @@ MyKiSystemCall64 proc
     ; Deallocate space for 6 register XMM register
     add rsp, 88h
 
+    ; Pop all pushed registers
+    pop  r15
+    pop  r14
+    pop  r13
+    pop  r12
+    pop  r11
+    pop  r10
+    pop  r9
+    pop  r8
+    pop  rdi
+    pop  rsi
+    pop  rbp
+    pop  rdx
+    pop  rcx
+    pop  rbx
+    pop  rax
+
+ExitPoint:
+    ; Restore UserMode stack pointer
+    mov rsp, gs:[GS_USER_STACK]
+
     ; Jump back to the original KiSystemCall64(Shadow), 
     ; RCX hold the original value of LSTAR. Which holds
     ; KiSystemCall64(Shadow).
-    jmp rcx
+    swapgs
+    jmp original_KiSystemCallAddress
 
-MyKiSystemCall64 endp
+MyKiSystemCall64Hook endp
 
 END

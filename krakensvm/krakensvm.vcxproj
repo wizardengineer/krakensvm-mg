@@ -128,7 +128,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <IncludePath>$(ProjectDir)ia32e;$(VC_IncludePath);$(ProjectDir)inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ia32e;$(VC_IncludePath);$(ProjectDir)inc;$(ProjectDir)hooks;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -194,6 +194,7 @@
   <ItemGroup>
     <MASM Include="ia32e\segment_intrins.asm" />
     <MASM Include="svm\vmexecute.asm" />
+    <MASM Include="hooks\syscall_handler.asm" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
