@@ -28,7 +28,16 @@
 
 using namespace ia32e;
 
-uint64_t original_KiSystemCallAddress = {};
+uint64_t OriginalKiSystemCallAddress = 0;
+
+// This will determine which syscall we'd using base on the index and
+// 
+uint8_t enabled_syscall_hooks[0x1000];
+
+// This is generally not needed, but i did this to circumvent bug that dealt with
+// linker issues, that i couldn't seem to find a solution
+extern "C" uint64_t get_enabled_syscall_addr()       { return (uint64_t)&enabled_syscall_hooks; }
+extern "C" uint64_t get_original_kisystemcall_addr() { return OriginalKiSystemCallAddress;      }
 
 // Injecting General Protection 
 auto inject_gp(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
@@ -39,9 +48,50 @@ auto inject_ud(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
 // Injecting Page Fault
 auto inject_pf(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
 
+
 //
 // #VMEXIT Handler
 //
+
+auto vmmcall_handler(vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void
+{
+  // x64	  x86	      Information Provided
+  // RCX	 EDX:EAX	  Hypercall Input Value
+  uint64_t hypercall_number = guest_status.guest_registers->rcx;
+
+  // x64	  x86	      Information Provided
+  // RDX	 EBX:EDX	  Hypercall Input Value
+  uint64_t context = (uint64_t)guest_status.guest_registers->rdx;
+
+  auto simply_hook = [&]() -> void
+  {
+    int lstar_value = __readmsr(ia32_lstar);
+    if (lstar_value == vcpu_data->original_lstar)
+    {
+      lstar_value = (uint64_t)&MyKiSystemCall64Hook;
+    }
+    __writemsr(ia32_lstar, lstar_value);
+  };
+
+  auto unsimply_hook = [&]() -> void
+  {
+    __writemsr(ia32_lstar, vcpu_data->original_lstar);
+  };
+
+  switch (hypercall_number)
+  {
+    case svm::hypercall_num::syscallhook:
+      simply_hook();
+      break;
+
+    case svm::hypercall_num::un_syscallhook:
+      unsimply_hook();
+      break;
+
+    default:
+      vminstructions_handler(vcpu_data);
+  }
+}
 
 // vminstructions_handler Substitutes having a vmload_handler, vmsave_handler and vmrun_handler
 auto vminstructions_handler(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void
@@ -151,12 +201,6 @@ auto setup_msrpermissions_bitmap(void* msrpermission_map) noexcept -> void
 
 }
 
-extern "C" void test_simple()
-{
-  kprint_info("HOOKED WORKED");
-  return;
-};
-
 //template<>
 //static auto msr_read_manager(uint32_t msr_value) -> void;
 
@@ -197,7 +241,7 @@ auto msr_handler(vmcb::pvcpu_ctx_t vcpu_data,
         //kprint_info("THERE WAS A IA32_LSTAR WRITE!!!");
         if (msr_value == vcpu_data->original_lstar)
         {
-          msr_value = (uint64_t)&test_simple;
+          msr_value = (uint64_t)&MyKiSystemCall64Hook;
         }
         __writemsr(ia32_lstar, msr_value);
       }
@@ -251,7 +295,7 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
   //
   current_guest_status.guest_registers->rax = vcpu_data->guest_vmcb.save_state.rax;
 
-  original_KiSystemCallAddress = vcpu_data->original_lstar;
+  OriginalKiSystemCallAddress = vcpu_data->original_lstar;
 
   // Simple Hook test
   if (__readmsr(ia32_lstar) == vcpu_data->original_lstar)

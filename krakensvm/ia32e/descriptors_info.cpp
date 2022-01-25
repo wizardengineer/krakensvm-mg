@@ -31,14 +31,14 @@ namespace ia32e::seg
   {
     segment_attribute_64_t attribute;
 
-    attribute.dpl = segment_descriptor->desc_priv_level;
-    attribute.type = segment_descriptor->type;
+    attribute.dpl         = segment_descriptor->desc_priv_level;
+    attribute.type        = segment_descriptor->type;
     attribute.granularity = segment_descriptor->granularity;
-    attribute.present = segment_descriptor->present;
-    attribute.longmode = segment_descriptor->long_mode;
-    attribute.def_bit = segment_descriptor->default_bit;
-    attribute.system = segment_descriptor->system;
-    attribute.avl = segment_descriptor->avalible;
+    attribute.present     = segment_descriptor->present;
+    attribute.longmode    = segment_descriptor->long_mode;
+    attribute.def_bit     = segment_descriptor->default_bit;
+    attribute.system      = segment_descriptor->system;
+    attribute.avl         = segment_descriptor->avalible;
     attribute.reserved = 0;
 
     return attribute.value;

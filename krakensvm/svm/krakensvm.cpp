@@ -178,6 +178,9 @@ namespace svm
     auto [status, completed_processor] = svm::exec_each_processors<bool, vmcb::ppaging_data>(vmcb::virt_cpu_init, shared_page_info);
     //vmcb::virt_cpu_init(shared_page_info);
 
+    // Hook
+    svm::exec_each_processors<void, int>( []() -> void { __svm_vmmcall(hypercall_num::syscallhook, nullptr); return; }, NULL);
+
     return _deallocation(status, completed_processor);
 
   }
@@ -242,7 +245,7 @@ namespace svm
   //
   // Thanks to daax wonderful post - https://revers.engineering/day-3-multiprocessor-initialization-error-handling-the-vmcs/
   // -   Generic type R represent the return value
-  template<class R, class param>
+  template<class R = void, class param = void>
   auto exec_each_processors(R (*function)(param), param arguments) noexcept -> std::pair<bool, int>
   {
     GROUP_AFFINITY old_affinity, affinity;

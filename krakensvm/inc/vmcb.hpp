@@ -32,6 +32,8 @@
 #include <hv_util.hpp>
 
 extern "C" void svmlaunch(uint64_t* guestvmcb_pa);
+extern "C" void __svm_vmmcall(uint64_t hypercall_number, void* context);
+
 using namespace ia32e::seg;
 
 namespace vmcb
@@ -274,7 +276,6 @@ namespace vmcb
   static_assert(sizeof(vmcb_64_t) == 0x1000, "VMCB Size Mismatch");
 
 
-
   //
   // Paging Info and MSRPM Pointer
   //
@@ -307,7 +308,6 @@ namespace vmcb
     uint64_t original_lstar;
 
   } vcpu_ctx_t, * pvcpu_ctx_t;
-
 
 
   auto vmcb_prepartion (pvcpu_ctx_t vcpu_data, register_ctx_t& host_info, ppaging_data sharded_page_info) noexcept -> void;

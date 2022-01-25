@@ -56,6 +56,12 @@ namespace svm
     unload_feature          = 0x41414141
   };
 
+  enum hypercall_num : uint64_t
+  {
+    syscallhook = 1,
+    un_syscallhook
+  };
+
   auto svm_support_checking  () noexcept -> bool;
   auto svm_enabling          () noexcept -> void;
 

@@ -23,20 +23,22 @@
 ; SOFTWARE.
 ;
 
-;MyHookKiSystemCall64Shadow proc
-;    ret
-;MyHookKiSystemCall64Shadow endp
-
-.const
+;.const
 
 GS_USER_STACK     equ   010h
 GS_KERNEL_STACK   equ  01A8h
 MAX_SYSCALL_INDEX equ 01000h
+KPRCB_OFFSET      equ  0180h        ; _KPCR->Prcb
+KPCR_KPRCB_CURRENT_THREAD equ 0188h ; _KPCR->Prcb.CurrentThread
 
 .code
 
+extern get_enabled_syscall_addr : proc
+extern get_original_kisystemcall_addr : proc
+
 extern test_simple : proc
-extern original_KiSystemCallAddress : dq
+
+;extern enabled_syscall_hooks
 
 MyKiSystemCall64Hook proc
 
@@ -44,20 +46,73 @@ MyKiSystemCall64Hook proc
     swapgs
 
     ; Save the user stack pointer
-    mov gs:[GS_USER_STACK], rsp
+    mov  gs:[GS_USER_STACK], rsp
 
-    mov rsp, gs:[GS_KERNEL_STACK]
-    push 02Bh
-    push qword ptr gs:[GS_USER_STACK]
-    push r11
-    push 33h
-
-
+;HyperVisorManagement:
     ; Checks to see if array index is greater than
     ; Array size.
-    cmp rax, MAX_SYSCALL_INDEX
+    cmp  rax, MAX_SYSCALL_INDEX
+    jge  ExitPoint
 
-    jg ExitPoint
+    mov r15, rax
+    push rax
+    ; For my variables that'll store my Address of OriginalKiSystemCallAddress
+    ; and enabled_syscall_hooks
+    call get_enabled_syscall_addr
+    ; *(enabled_syscall_hooks_BaseAddress + Offset) == 0
+    cmp byte ptr [rax + r15], 0
+    jne ExitPoint
+
+    call get_original_kisystemcall_addr
+    mov r12, rax
+
+    pop rax
+    xor r15, r15
+
+    mov  rsp, gs:[GS_KERNEL_STACK]
+    push 02Bh
+    push gs:[GS_USER_STACK]
+    push r11
+    push 33h
+    push rcx
+    mov  rcx, r10
+
+    sub  rsp, 8h
+    push rbp
+    sub  rsp, 158h
+    lea  rbp, [rsp+80]
+
+    ; Save nonvolatile registers
+    mov  [rbp+0C0h], rbx 
+    mov  [rbp+0C8h], rdi
+    mov  [rbp+0D0h], rsi
+
+KiSystemServiceUser:
+
+    ; Set service active
+    mov byte ptr [rbp-055h], 2h
+    mov rbx, gs:[KPCR_KPRCB_CURRENT_THREAD]
+    prefetchw byte ptr [rbx+90h]
+    stmxcsr   dword ptr [rbp-54h]
+    ldmxcsr   dword ptr gs:[KPRCB_OFFSET]
+    cmp byte ptr [rbx+3h], 0
+    mov word ptr [rbp+80h], 0
+
+    ;jz loc_140408B04
+    ;mov [rbp-50h], rax
+    ;mov [rbp-48h], rcx
+    ;mov [rbp-40h], rdx
+    ;mov [rbp-38h], r8
+    ;mov [rbp-30h], r9
+
+    ;int 3
+    ;align 10h
+
+loc_140408B04:
+
+    mov         [rbx+88h], rcx
+    mov         [rbx+80h], eax
+SimpleFunction:
 
     ; The stack decreased by 8 * 16 after all the pushes
     ; been executed
@@ -77,8 +132,6 @@ MyKiSystemCall64Hook proc
     push  r14
     push  r15
 
-    
-    
     ; Allocate space for the 6 register XMM register
     sub rsp, 88h
 
@@ -124,6 +177,7 @@ MyKiSystemCall64Hook proc
     pop  rax
 
 ExitPoint:
+    add rsp, 158h
     ; Restore UserMode stack pointer
     mov rsp, gs:[GS_USER_STACK]
 
@@ -131,7 +185,7 @@ ExitPoint:
     ; RCX hold the original value of LSTAR. Which holds
     ; KiSystemCall64(Shadow).
     swapgs
-    jmp original_KiSystemCallAddress
+    jmp r12
 
 MyKiSystemCall64Hook endp
 

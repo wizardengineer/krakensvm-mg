@@ -26,8 +26,6 @@
 #include <hv_util.hpp>
 #include <syscall_hook.hpp>
 
-extern "C" 
-
 namespace hk
 {
 
