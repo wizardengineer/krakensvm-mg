@@ -28,6 +28,7 @@
 #include <hv_util.hpp>
 #include <paging.hpp>
 #include <vmcb.hpp>
+#include <syscall_hook.hpp>
 
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwYieldExecution();
 
@@ -179,7 +180,7 @@ namespace svm
     //vmcb::virt_cpu_init(shared_page_info);
 
     // Hook
-    svm::exec_each_processors<void, int>( []() -> void { __svm_vmmcall(hypercall_num::syscallhook, nullptr); return; }, NULL);
+    (void)svm::exec_each_processors<bool, int>(hk::syscallhook_init, nullptr);
 
     return _deallocation(status, completed_processor);
 

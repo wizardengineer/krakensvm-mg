@@ -25,8 +25,15 @@
 
 #include <hv_util.hpp>
 #include <syscall_hook.hpp>
+#include <vmcb.hpp>
+#include <krakensvm.hpp>
 
 namespace hk
 {
-
+  auto syscallhook_init(int context) -> bool
+  {
+    UNREFERENCED_PARAMETER(context);
+    __svm_vmmcall(svm::hypercall_num::syscallhook, nullptr);
+    return true;
+  };
 };

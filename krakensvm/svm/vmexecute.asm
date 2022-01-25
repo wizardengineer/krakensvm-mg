@@ -32,10 +32,10 @@ SELF_OFFSET equ 3008h
 extern vmexit_handler : proc
 
 ; Vmcall function
-__svm_vmcall proc
+__svm_vmmcall proc
     vmmcall
     ret
-__svm_vmcall end
+__svm_vmmcall endp
 
 svmlaunch proc
     mov rsp, rcx 

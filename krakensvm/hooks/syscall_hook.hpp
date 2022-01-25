@@ -32,5 +32,5 @@ int MyKiSystemCall64Hook();
 
 namespace hk
 {
-
+  auto syscallhook_init(int context) -> bool;
 };
