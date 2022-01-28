@@ -23,53 +23,29 @@
 * SOFTWARE.
 */
 
-#pragma once
+//
+// Utilites that'll be used for the general use of this VMM
+//
 
-#include <stdint.h>
-#include <type_traits>
-#include <functional>
-#include <utility>
+#include <hv_util.hpp>
 
-
-namespace svm
+namespace utils
 {
-  enum class cpuid_e : uint32_t // "e" for enum
+  uint64_t get_kernelbase_addr()
   {
+    UNICODE_STRING routine {};
+    uint64_t kernel_base   {};
 
-    // features
-    svm_features            = 0x8000000a,
-    svm_features_ex         = 0x80000001,
-    processor_feature_id    = 0x00000001,
-    processor_feature_id_ex = 0x80000001,
-    cpu_vendor_string       = 0x00000000,
-    hypervisor_present_ex   = 0x80000000,
-    hypervisor_interface    = 0x40000001,
-    hypervisor_vendor_id    = 0x40000000,
+    RtlInitUnicodeString(&routine, L"RtlPcToFileHeader");
+    using f_RtlPcToFileHeader = PVOID(*) (PVOID PcValue, PVOID* BaseOfImage);
 
-    // fn8000_0001_ecx_svm bit
-    svm_fn                  = 0x00000004,
+    const f_RtlPcToFileHeader RtlPcToFileHeader =
+      reinterpret_cast<f_RtlPcToFileHeader>(MmGetSystemRoutineAddress( &routine ));
 
-    // fn8000_0001_ebx_np bit
-    nest_page_fn            = 0x00000001,
+    if (!RtlPcToFileHeader) return 0xdead;
+    
+    RtlPcToFileHeader(RtlPcToFileHeader, reinterpret_cast<void**>(&kernel_base) );
 
-    // hypervisor specific features
-    unload_feature          = 0x41414141
-  };
-
-  enum hypercall_num : uint64_t
-  {
-    syscallhook = 4,
-    un_syscallhook
-  };
-
-  auto svm_support_checking  () noexcept -> bool;
-  auto svm_enabling          () noexcept -> void;
-
-  // Virtualize each processor
-  auto virt_each_processors  () noexcept -> bool;
-
-  // De-Virtualize each processor 'KRKN'
-  auto devirt_each_processors() noexcept -> void;
-  auto devirt_processor(void* shared_context) noexcept -> bool;
-
-}; // namespace svm
+    return kernel_base;
+  }
+};

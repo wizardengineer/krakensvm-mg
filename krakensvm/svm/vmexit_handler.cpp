@@ -297,13 +297,13 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
 
   OriginalKiSystemCallAddress = vcpu_data->original_lstar;
 
-  // Simple Hook test
-  if (__readmsr(ia32_lstar) == vcpu_data->original_lstar)
+  //kprint_info("SYSCALLHOOK_INIT\n");
+  int lstar_value = __readmsr(ia32_lstar);
+  if (lstar_value == OriginalKiSystemCallAddress)
   {
-    __writemsr(ia32_lstar, (uint64_t)&MyKiSystemCall64Hook);
-    //kprint_info("CHANGED THE VALUE OF ");
+    lstar_value = (uint64_t)&MyKiSystemCall64Hook;
   }
-  
+  __writemsr(ia32_lstar, lstar_value);
 
   switch (vcpu_data->guest_vmcb.control_area.exitcode)
   {
@@ -325,6 +325,11 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
 
     case VMEXIT::_CPUID:
       cpuid_handler(vcpu_data, current_guest_status);
+      break;
+
+    case VMEXIT::_VMMCALL:
+      // This isn't need, i only added vmmcall intercept for learning purposes.
+      vmmcall_handler(vcpu_data, current_guest_status);
       break;
 
     case VMEXIT::_INVALID:

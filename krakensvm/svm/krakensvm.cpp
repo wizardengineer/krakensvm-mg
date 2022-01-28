@@ -32,6 +32,11 @@
 
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwYieldExecution();
 
+extern "C" void test_simple()
+{
+  kprint_info("HOOKED LSTAR SUCCESSFULLY\n");
+}
+
 /*
  * Before enabling SVM, software should detect whether SVM can be enabled using
  * the following algorithm
@@ -179,13 +184,9 @@ namespace svm
     auto [status, completed_processor] = svm::exec_each_processors<bool, vmcb::ppaging_data>(vmcb::virt_cpu_init, shared_page_info);
     //vmcb::virt_cpu_init(shared_page_info);
 
-    // Hook
-    (void)svm::exec_each_processors<bool, int>(hk::syscallhook_init, nullptr);
-
     return _deallocation(status, completed_processor);
 
   }
-
 
 
   //

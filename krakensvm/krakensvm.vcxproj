@@ -194,7 +194,7 @@
   <ItemGroup>
     <MASM Include="ia32e\segment_intrins.asm" />
     <MASM Include="svm\vmexecute.asm" />
-    <MASM Include="hooks\syscall_handler.asm" />
+    <MASM Include="hooks\syscall_handler%28deprecated%29.asm" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

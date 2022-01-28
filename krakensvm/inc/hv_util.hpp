@@ -484,5 +484,12 @@ enum VMEXIT : int16_t
   _BUSY            = -2
 };
 
+//
+// Utilites that'll be used for the general use of this VMM
+//
 
+namespace utils
+{
+  uint64_t get_kernelbase_addr();
+};
 

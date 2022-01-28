@@ -31,9 +31,6 @@
 namespace hk
 {
   auto syscallhook_init(int context) -> bool
-  {
-    UNREFERENCED_PARAMETER(context);
-    __svm_vmmcall(svm::hypercall_num::syscallhook, nullptr);
-    return true;
-  };
+  { }
+
 };

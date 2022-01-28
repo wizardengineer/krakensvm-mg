@@ -27,10 +27,25 @@
 
 #include <hv_util.hpp>
 
-extern "C"
-int MyKiSystemCall64Hook();
+// extern "C" int MyKiSystemCall64Hook();
 
 namespace hk
 {
-  auto syscallhook_init(int context) -> bool;
+  static struct _lstar_info
+  {
+    size_t   systemcall_func_size;
+    uint64_t lstar_end_addr;
+    static bool existence_syscall,
+                existence_syscall_shadow;
+
+    _lstar_info() : systemcall_func_size( 0 ),
+                    lstar_end_addr      ( 0 ) {}
+
+  } lstar_info;
+
+  bool _lstar_info::existence_syscall        = false;
+  bool _lstar_info::existence_syscall_shadow = false;
+
+  auto syscallhook_init    (int context)          noexcept -> bool;
+  auto contruct_lstar_hook (uint64_t kernal_base) noexcept -> bool;
 };
