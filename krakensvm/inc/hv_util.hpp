@@ -28,9 +28,12 @@
 #define HV_POOL_TAG       'VHGM'
 #define CPUID_MAX_REGS    4
 
+
 #include <ntddk.h>
-#include <intrin.h>
+#include <windef.h>
 #include <basetsd.h>
+//#include <winnt.h>
+#include <intrin.h>
 #include <type_traits>
 #include <stdarg.h>  
 #include <segment_intrins.h>
@@ -482,14 +485,5 @@ enum VMEXIT : int16_t
   // VMEXIT_BUSY; BUSY bit was set in the encrypted VMSA (see "Interrupt
   // Injection Restrictions")
   _BUSY            = -2
-};
-
-//
-// Utilites that'll be used for the general use of this VMM
-//
-
-namespace utils
-{
-  uint64_t get_kernelbase_addr();
 };
 

@@ -23,14 +23,51 @@
 * SOFTWARE.
 */
 
-#include <hv_util.hpp>
 #include <syscall_hook.hpp>
-#include <vmcb.hpp>
 #include <krakensvm.hpp>
+#include <capstone/capstone.h>
+#include <windef.h>
+#include <winnt.h>
+
+//using namespace ia32e;
+void* arena_alloc(size_t n) { appended_alloc += n; return hypervisor_arena + appended_alloc - n; }
 
 namespace hk
 {
-  auto syscallhook_init(int context) -> bool
-  { }
+
+  auto contruct_lstar_hook(uint64_t kernal_base, uint64_t original_lstar) noexcept -> std::pair<bool, int>
+  {
+    bool status = false;
+
+    // Instruction data structs that'll hold and map information for our
+    // KiSystemCall64(Shadow) rebuild
+    cs_insn *current_instruction = nullptr,
+            *next_instruction    = nullptr,
+            *end_of_instruction  = nullptr,
+
+            *temp_instruction    = nullptr;
+
+    csh handle;
+
+    // Let us know if the if we're dealing with Shadow syscall handler
+    // or not
+    bool existence_of_syscall        = false,
+         existence_of_syscall_shadow = false;
+
+    PKSERVICE_TABLE_DESCRIPTOR service_descriptor_table = nullptr;
+    PKSERVICE_TABLE_DESCRIPTOR service_descriptor_table_shadow = nullptr;
+
+    PRUNTIME_FUNCTION handler_function_entry = nullptr;
+
+    // This will be stored info about ServiceDescriptorTable(Shadow)
+    _hook_lstar_info hook_table_instance;
+
+    handler_function_entry = RtlLookupFunctionEntry(kernal_base, (uint64_t*)original_lstar, 0);
+
+    //if (cs_open(CS_ARCH_X86, CS_MODE_64, &handle) != CS_ERR_OK) return { status, 0 };
+
+    return { status, 0 };
+  }
 
 };
+

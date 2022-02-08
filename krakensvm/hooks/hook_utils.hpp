@@ -23,29 +23,30 @@
 * SOFTWARE.
 */
 
-//
-// Utilites that'll be used for the general use of this VMM
-//
+#pragma once
 
-#include <hv_util.hpp>
+#include <stdint.h>
+#include <utility>
+//#include <windef.h>
+
+typedef  struct _KSYSTEM_SERVICE_TABLE
+{
+  uint64_t* ServiceTableBase;								// The base address of the service function address table   
+  uint64_t* ServiceCounterTableBase; 				// The number of times the SSDT function is called 
+  uint64_t  NumberOfService; 								// The number of   service functions PULONG 
+  char8_t*  ParamTableBase; 						    // The base address of the service function parameter table    
+} KSYSTEM_SERVICE_TABLE, * PKSYSTEM_SERVICE_TABLE;
+
+typedef  struct _KSERVICE_TABLE_DESCRIPTOR
+{
+  KSYSTEM_SERVICE_TABLE NTOSKRNL;           // Ntoskrnl.exe service function   
+  KSYSTEM_SERVICE_TABLE Win32k;             // Win32k.sys service function (kernel supports GDI32.dll/User32.dll a)   
+  KSYSTEM_SERVICE_TABLE notUsed1;
+  KSYSTEM_SERVICE_TABLE notUsed2;
+} KSERVICE_TABLE_DESCRIPTOR, * PKSERVICE_TABLE_DESCRIPTOR;
 
 namespace utils
 {
-  uint64_t get_kernelbase_addr()
-  {
-    UNICODE_STRING routine {};
-    uint64_t kernel_base   {};
-
-    RtlInitUnicodeString(&routine, L"RtlPcToFileHeader");
-    using f_RtlPcToFileHeader = PVOID(*) (PVOID PcValue, PVOID* BaseOfImage);
-
-    const f_RtlPcToFileHeader RtlPcToFileHeader =
-      reinterpret_cast<f_RtlPcToFileHeader>(MmGetSystemRoutineAddress( &routine ));
-
-    if (!RtlPcToFileHeader) return 0xdead;
-    
-    RtlPcToFileHeader(RtlPcToFileHeader, reinterpret_cast<void**>(&kernel_base) );
-
-    return kernel_base;
-  }
+  uint64_t get_kernelbase_addr     ();
+  auto get_service_descriptor_table() -> PKSERVICE_TABLE_DESCRIPTOR;
 };

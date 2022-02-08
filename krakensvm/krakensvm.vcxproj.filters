@@ -48,6 +48,9 @@
     <ClCompile Include="hooks\syscall_hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="hooks\hook_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\hv_util.hpp">
@@ -77,12 +80,18 @@
     <ClInclude Include="hooks\syscall_hook.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hooks\hook_utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="svm\vmexecute.asm">
       <Filter>Source Files</Filter>
     </MASM>
     <MASM Include="ia32e\segment_intrins.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="hooks\syscall_handler%28deprecated%29.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

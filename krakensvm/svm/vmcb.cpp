@@ -26,7 +26,7 @@
 #include <vmcb.hpp>
 #include <hv_util.hpp>
 
-extern "C" NTSYSAPI VOID RtlCaptureContext(PCONTEXT ContextRecord);
+//extern "C" NTSYSAPI VOID RtlCaptureContext(PCONTEXT ContextRecord);
 using namespace ia32e;
 
 namespace vmcb
@@ -183,7 +183,7 @@ namespace vmcb
     bool status = true;
 
     vcpu_data = reinterpret_cast<pvcpu_ctx_t>
-      ( mm::page_aligned_alloc(sizeof(vcpu_ctx_t)) );
+      ( mm::system_aligned_alloc(sizeof(vcpu_ctx_t)) );
 
     //__debugbreak();
 
@@ -230,7 +230,7 @@ namespace vmcb
   _deallocation:
     if (!status && vcpu_data != nullptr)
     {
-      free_page_aligned_alloc(vcpu_data);
+      system_free_alloc(vcpu_data);
     }
     return status;
   }

@@ -25,27 +25,37 @@
 
 #pragma once
 
-#include <hv_util.hpp>
+#include <stdint.h>
+#include <utility>
+#include <hook_utils.hpp>
 
 // extern "C" int MyKiSystemCall64Hook();
 
+//
+// Hypervisor Allocation
+//
+
+__declspec(selectany) uint64_t appended_alloc   {};
+__declspec(selectany) char8_t* hypervisor_arena {};
+
 namespace hk
 {
-  static struct _lstar_info
+  struct _hook_lstar_info
   {
-    size_t   systemcall_func_size;
-    uint64_t lstar_end_addr;
-    static bool existence_syscall,
-                existence_syscall_shadow;
+    uint64_t* hook_lstar_table;
+    uint64_t* hook_lstar_table_shadow;
 
-    _lstar_info() : systemcall_func_size( 0 ),
-                    lstar_end_addr      ( 0 ) {}
+    size_t hooked_table_size, hook_table_shdw_size;
 
-  } lstar_info;
+    _hook_lstar_info() noexcept : hook_table_shdw_size (0),
+                                  hooked_table_size    (0),
+                                  hook_lstar_table     (nullptr),
+                                  hook_lstar_table_shadow (nullptr) {}
 
-  bool _lstar_info::existence_syscall        = false;
-  bool _lstar_info::existence_syscall_shadow = false;
+    ~_hook_lstar_info() = default;
+
+  };
 
   auto syscallhook_init    (int context)          noexcept -> bool;
-  auto contruct_lstar_hook (uint64_t kernal_base) noexcept -> bool;
+  auto contruct_lstar_hook (uint64_t kernal_base) noexcept -> std::pair<bool, int>;
 };

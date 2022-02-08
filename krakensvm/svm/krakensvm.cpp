@@ -68,6 +68,9 @@ namespace svm
   template<class R, class param>
   auto exec_each_processors(R (*function)(param), param arguments) noexcept -> std::pair<bool, int>;
 
+  template<class R, class param>
+  auto ipi_each_processors(R(*function)(param), param arguments) noexcept -> void;
+
   // De-Virtualize each processor 'KRKN'
   auto devirt_processor(void* shared_context) noexcept -> bool;
   auto devirt_each_processors() noexcept -> void;
@@ -143,9 +146,13 @@ namespace svm
   {
     vmcb::ppaging_data shared_page_info = nullptr;
 
-    shared_page_info = static_cast<vmcb::ppaging_data>(mm::page_aligned_alloc(sizeof vmcb::paging_data));
+    shared_page_info =
+      static_cast<vmcb::ppaging_data>(mm::system_aligned_alloc(sizeof vmcb::paging_data));
 
-    shared_page_info->msrpm_addr = mm::contiguous_alloc(PAGE_SIZE * 2);
+    shared_page_info->msrpm_addr = mm::system_contiguous_alloc(PAGE_SIZE * 2);
+
+    // Pre-allocation for the syscall hooking
+    hypervisor_arena = reinterpret_cast<char8_t*>(mm::system_aligned_alloc(0x3d0900));
     
     // I wasn't able to make this into a label to be used with goto's
     // due to all the errors I was encountering, mainly being the
@@ -159,8 +166,8 @@ namespace svm
           devirt_each_processors();
         }
         else {
-          free_page_aligned_alloc(shared_page_info);
-          free_contiguous_alloc(shared_page_info->msrpm_addr);
+          system_free_alloc(shared_page_info);
+          system_free_contiguous(shared_page_info->msrpm_addr);
         }
       }
 
@@ -224,7 +231,7 @@ namespace svm
 
     shared_page_ptr = static_cast<ppaging_data*>(shared_context);
     *shared_page_ptr = vcpu_data->self_shared_page_info;
-    free_page_aligned_alloc(vcpu_data);
+    system_free_alloc(vcpu_data);
 
     return true;
   }
@@ -236,17 +243,17 @@ namespace svm
 
     if (shared_page_info != nullptr)
     {
-      free_contiguous_alloc(shared_page_info->msrpm_addr);
-      free_page_aligned_alloc(shared_page_info);
+      system_free_contiguous(shared_page_info->msrpm_addr);
+      system_free_alloc(shared_page_info);
     }
   }
 
-  // Execute on each processors (cores). For executing our code on
-  // each processor, we'll be using the affinity mask. Rather
-  // than using DPCs or IPI.
+  // Execute on each processors (cores). For executing our
+  // code for virtualization on each processor, we'll be
+  // using affinity mask. Rather than using DPCs or IPI.
   //
   // Thanks to daax wonderful post - https://revers.engineering/day-3-multiprocessor-initialization-error-handling-the-vmcs/
-  // -   Generic type R represent the return value
+  // -   Generic type R represent the return value type
   template<class R = void, class param = void>
   auto exec_each_processors(R (*function)(param), param arguments) noexcept -> std::pair<bool, int>
   {

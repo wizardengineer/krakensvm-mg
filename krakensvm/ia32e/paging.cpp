@@ -31,7 +31,7 @@ namespace ia32e::mm
   // Allocate Pools of Contigous memory
   //
 
-  auto contiguous_alloc(size_t bytes_number) -> void*
+  auto system_contiguous_alloc(size_t bytes_number) -> void*
   {
     void* memory = nullptr;
     PHYSICAL_ADDRESS highest;

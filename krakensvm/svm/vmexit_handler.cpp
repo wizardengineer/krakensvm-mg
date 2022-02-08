@@ -68,7 +68,7 @@ auto vmmcall_handler(vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) n
     int lstar_value = __readmsr(ia32_lstar);
     if (lstar_value == vcpu_data->original_lstar)
     {
-      lstar_value = (uint64_t)&MyKiSystemCall64Hook;
+      //lstar_value = (uint64_t)&MyKiSystemCall64Hook;
     }
     __writemsr(ia32_lstar, lstar_value);
   };
@@ -241,7 +241,7 @@ auto msr_handler(vmcb::pvcpu_ctx_t vcpu_data,
         //kprint_info("THERE WAS A IA32_LSTAR WRITE!!!");
         if (msr_value == vcpu_data->original_lstar)
         {
-          msr_value = (uint64_t)&MyKiSystemCall64Hook;
+          //msr_value = (uint64_t)&MyKiSystemCall64Hook;
         }
         __writemsr(ia32_lstar, msr_value);
       }
@@ -301,7 +301,7 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
   int lstar_value = __readmsr(ia32_lstar);
   if (lstar_value == OriginalKiSystemCallAddress)
   {
-    lstar_value = (uint64_t)&MyKiSystemCall64Hook;
+    //lstar_value = (uint64_t)&MyKiSystemCall64Hook;
   }
   __writemsr(ia32_lstar, lstar_value);
 
