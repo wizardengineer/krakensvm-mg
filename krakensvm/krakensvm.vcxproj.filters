@@ -51,6 +51,9 @@
     <ClCompile Include="hooks\hook_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="hooks\pe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\hv_util.hpp">
@@ -81,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hooks\hook_utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks\pe.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

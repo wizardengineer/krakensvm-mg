@@ -152,7 +152,7 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <WarningLevel>Level2</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="hooks\hook_utils.cpp" />
+    <ClCompile Include="hooks\pe.cpp" />
     <ClCompile Include="hooks\syscall_hook.cpp" />
     <ClCompile Include="ia32e\descriptors_info.cpp" />
     <ClCompile Include="ia32e\paging.cpp" />
@@ -183,6 +184,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hooks\hook_utils.hpp" />
+    <ClInclude Include="hooks\pe.hpp" />
     <ClInclude Include="hooks\syscall_hook.hpp" />
     <ClInclude Include="ia32e\control_registers.hpp" />
     <ClInclude Include="ia32e\descriptors_info.hpp" />

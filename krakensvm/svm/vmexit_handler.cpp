@@ -68,7 +68,9 @@ auto vmmcall_handler(vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) n
     int lstar_value = __readmsr(ia32_lstar);
     if (lstar_value == vcpu_data->original_lstar)
     {
-      //lstar_value = (uint64_t)&MyKiSystemCall64Hook;
+      // The Context variable in this case will be a pointer to our New constructed LSTAR Handler that
+      // that is derived from the original LSTAR Handler: ( KiSystemCall64(Shadow) )
+      lstar_value = context;
     }
     __writemsr(ia32_lstar, lstar_value);
   };
@@ -98,17 +100,6 @@ auto vminstructions_handler(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void
 {
   inject_gp(vcpu_data);
 }
-
-/* This was gonna to be used as a way to unload the driver, but i decided to use
- * to use CPUID instead. After I had a better understand of it's interception
-
-auto vmmcall_handler(vmcb::pvcpu_ctx_t vcpu_data,
-                   guest_status_t guest_status) noexcept -> void
-{
-  if (guest_status.guest_registers->r14 != 'KREN')
-  { inject_ud(vcpu_data); }
-}
-*/
 
 auto cpuid_handler(vmcb::pvcpu_ctx_t vcpu_data,
                    guest_status_t& guest_status) noexcept -> void

@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 #include <utility>
+
 //#include <windef.h>
 
 typedef  struct _KSYSTEM_SERVICE_TABLE
@@ -48,5 +49,5 @@ typedef  struct _KSERVICE_TABLE_DESCRIPTOR
 namespace utils
 {
   uint64_t get_kernelbase_addr     ();
-  auto get_service_descriptor_table() -> PKSERVICE_TABLE_DESCRIPTOR;
+  auto get_service_descriptor_table() -> std::pair<PKSERVICE_TABLE_DESCRIPTOR, PKSERVICE_TABLE_DESCRIPTOR>;
 };

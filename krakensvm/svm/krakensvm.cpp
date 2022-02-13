@@ -189,6 +189,8 @@ namespace svm
     setup_msrpermissions_bitmap(shared_page_info->msrpm_addr);
     
     auto [status, completed_processor] = svm::exec_each_processors<bool, vmcb::ppaging_data>(vmcb::virt_cpu_init, shared_page_info);
+
+    hk::syscallhook_init(0);
     //vmcb::virt_cpu_init(shared_page_info);
 
     return _deallocation(status, completed_processor);

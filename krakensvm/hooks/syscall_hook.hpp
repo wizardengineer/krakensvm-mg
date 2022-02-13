@@ -27,7 +27,6 @@
 
 #include <stdint.h>
 #include <utility>
-#include <hook_utils.hpp>
 
 // extern "C" int MyKiSystemCall64Hook();
 
