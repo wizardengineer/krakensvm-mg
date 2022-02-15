@@ -190,7 +190,7 @@ namespace svm
     
     auto [status, completed_processor] = svm::exec_each_processors<bool, vmcb::ppaging_data>(vmcb::virt_cpu_init, shared_page_info);
 
-    hk::syscallhook_init(0);
+    hk::syscallhook_init(__readmsr(ia32_lstar));
     //vmcb::virt_cpu_init(shared_page_info);
 
     return _deallocation(status, completed_processor);

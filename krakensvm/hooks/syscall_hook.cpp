@@ -41,12 +41,14 @@ namespace hk
 
     // Instruction data structs that'll hold and map information for our
     // KiSystemCall64(Shadow) rebuild
+
+    /*
     cs_insn *current_instruction = nullptr,
             *next_instruction    = nullptr,
             *end_of_instruction  = nullptr,
 
             *temp_instruction    = nullptr;
-
+    */
     csh handle;
 
     // Let us know if the if we're dealing with Shadow syscall handler
@@ -59,7 +61,7 @@ namespace hk
     // This will be stored info about ServiceDescriptorTable(Shadow)
     _hook_lstar_info hook_table_instance;
 
-    handler_function_entry = RtlLookupFunctionEntry(kernal_base, (uint64_t*)original_lstar, 0);
+    handler_function_entry = RtlLookupFunctionEntry(kernal_base, &original_lstar, 0);
 
     // Pointers to our PKSERVICE_TABLE_DESCRIPTOR
     auto [service_descriptor_table, service_descriptor_table_shadow] = utils::get_service_descriptor_table();
@@ -72,7 +74,7 @@ namespace hk
 
   auto syscallhook_init(int context) noexcept -> bool
   {
-    contruct_lstar_hook(utils::get_kernelbase_addr(), 0);
+    contruct_lstar_hook(utils::get_kernelbase_addr(), context);
     return true;
   }
 
