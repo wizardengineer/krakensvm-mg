@@ -43,35 +43,35 @@ auto vmexit_invalid_dump(const char* from, vmcb::pvcpu_ctx_t vmcb_data) noexcept
   // Checks CR0.CD is zero and CR0.NW is set
   kprint_info("*\tCR0.CD => VALUE: %i; %s and CR0.NW %s",
     vmcb_data->guest_vmcb.save_state.cr0 & (1U << 30),
-    vmcb_data->guest_vmcb.save_state.cr0 & (1U << 30) != 0 ? "Is Not Zero" :
-                                                             "Is Zero - INVALID",
+    vmcb_data->guest_vmcb.save_state.cr0 & (1U << 30) == 0 ? "Is Zero" :
+                                                             "Is Not Zero - INVALID",
 
     vmcb_data->guest_vmcb.save_state.cr0 & (1U << 29) != 1 ? "Is Not Set\n" :
                                                              "Is Set - INVALID\n"
     );
   // Checks CR0[63:32] are not zero
-  kprint_info("*\tCR0 => VALUE: %i; Reserved MBZ %s",
+  kprint_info("*\tCR0 => VALUE: 0x%x; Reserved MBZ %s",
     vmcb_data->guest_vmcb.save_state.cr0 >> 32U,
     vmcb_data->guest_vmcb.save_state.cr0 >> 32U == 0 ? "Is Zero\n" :
                                                        "Is Not Zero - INVALID\n");
   // Checks Any MBZ bit of CR3 is set
-  kprint_info("*\tCR3 => VALUE: %i; Reserved MBZ %s",
+  kprint_info("*\tCR3 => VALUE: 0x%x; Reserved MBZ %s",
     vmcb_data->guest_vmcb.save_state.cr3,
     vmcb_data->guest_vmcb.save_state.cr3 >> 52U == 0 ? "Is Zero\n" :
                                                        "Is Not Zero - INVALID\n");
   // Checks Any MBZ bit of CR4 is set
-  kprint_info("*\tCR4 Reserved MBZ %s",
-
+  kprint_info("*\tCR4 => VALUE: 0x%x; Reserved MBZ %s",
+    vmcb_data->guest_vmcb.save_state.cr4,
     vmcb_data->guest_vmcb.save_state.cr4 & (1U << 19) == 0 &&
-    vmcb_data->guest_vmcb.save_state.cr4 >> 32U == 0 ? "Is Zero\n" :
+    vmcb_data->guest_vmcb.save_state.cr4 >> 24U == 0 ? "Is Zero\n" :
                                                        "Is Not Zero - INVALID\n");
   // Checks DR6[63:32] are not zero
-  kprint_info("*\tDR6 => VALUE: %i; Reserved MBZ %s",
+  kprint_info("*\tDR6 => VALUE: 0x%x; Reserved MBZ %s",
     vmcb_data->guest_vmcb.save_state.dr6,
     vmcb_data->guest_vmcb.save_state.dr6 >> 32U != 0 ? "Is Not Zero\n" :
                                                        "Is Zero - INVALID\n");
    // Checks DR7[63:32] are not zero
-  kprint_info("*\tDR7 => VALUE: %i; Reserved MBZ %s",
+  kprint_info("*\tDR7 => VALUE: 0x%x; Reserved MBZ %s",
     vmcb_data->guest_vmcb.save_state.dr7,
     vmcb_data->guest_vmcb.save_state.dr7 >> 32U != 0 ? "Is Not Zero\n" :
                                                        "Is Zero - INVALID\n");
@@ -90,12 +90,12 @@ auto vmexit_invalid_dump(const char* from, vmcb::pvcpu_ctx_t vmcb_data) noexcept
     && (vmcb_data->guest_vmcb.save_state.cs.attribute.longmode != 0)
     && (vmcb_data->guest_vmcb.save_state.cs.attribute.def_bit  != 0))
   {
-    kprint_info("•\tEFER.LME, CR0.PG, CR4.PAE, CS.L and CS.D are all non-zero.\n");
+    kprint_info("*\tEFER.LME, CR0.PG, CR4.PAE, CS.L and CS.D are all non-zero.\n");
   }
 
   // INTERCEPT_VMRUN
-  kprint_info("•\t VMRUN intercept bit %s", vmcb_data->guest_vmcb.control_area.
+  kprint_info("*\tVMRUN intercept bit %s", vmcb_data->guest_vmcb.control_area.
     intercept_misc_vector_4 & INTERCEPT_VMRUN != 0 ? "Is Not Cleared\n" : "Is Cleared - INVALID\n");
 
-  kprint_info("The END of Canonicalization and Consistency Checks. \n");
+  kprint_info("The END of Canonicalization and Consistency Checks. \n\n");
 }

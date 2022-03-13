@@ -155,11 +155,11 @@ namespace ia32e::mm
                   "Size of PTE is not Valid");
 
   //
-  // Allocate Page of NonPaged Pools
+  // Allocate Page of NonPaged Pools for system
   //
 
   template<size U>
-  auto page_aligned_alloc(U bytes_number) -> void*
+  auto system_aligned_alloc(U bytes_number) -> void*
   {
     void* ptr_memory;
     ptr_memory = ExAllocatePoolWithTag(NonPagedPool, bytes_number, HV_POOL_TAG);
@@ -171,14 +171,20 @@ namespace ia32e::mm
     return ptr_memory;
   }
 
-#define free_page_aligned_alloc(base_address) ExFreePoolWithTag(base_address, HV_POOL_TAG)
+#define system_free_alloc(base_address) ExFreePoolWithTag(base_address, HV_POOL_TAG)
 
   //
   // Allocate Pools of Contigous memory
   //
 
-  auto contiguous_alloc(size_t bytes_number) -> void*;
+  auto system_contiguous_alloc(size_t bytes_number) -> void*;
+  // page_aligned_alloc free_page_aligned_alloc
+#define system_free_contiguous(base_address) MmFreeContiguousMemory(base_address)
 
-#define free_contiguous_alloc(base_address) MmFreeContiguousMemory(base_address)
+  //
+  // Hypervisor Allocation
+  //
+
+
 
 }; // namespace ia32e::mm

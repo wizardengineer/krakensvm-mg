@@ -24,8 +24,20 @@
 */
 
 #include <vmexit_handler.hpp>
+#include <syscall_hook.hpp>
 
 using namespace ia32e;
+
+uint64_t OriginalKiSystemCallAddress = 0;
+
+// This will determine which syscall we'd using base on the index and
+// 
+uint8_t enabled_syscall_hooks[0x1000];
+
+// This is generally not needed, but i did this to circumvent bug that dealt with
+// linker issues, that i couldn't seem to find a solution
+extern "C" uint64_t get_enabled_syscall_addr()       { return (uint64_t)&enabled_syscall_hooks; }
+extern "C" uint64_t get_original_kisystemcall_addr() { return OriginalKiSystemCallAddress;      }
 
 // Injecting General Protection 
 auto inject_gp(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
@@ -36,26 +48,58 @@ auto inject_ud(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
 // Injecting Page Fault
 auto inject_pf(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void;
 
+
 //
 // #VMEXIT Handler
 //
+
+auto vmmcall_handler(vmcb::pvcpu_ctx_t vcpu_data, guest_status_t guest_status) noexcept -> void
+{
+  // x64	  x86	      Information Provided
+  // RCX	 EDX:EAX	  Hypercall Input Value
+  uint64_t hypercall_number = guest_status.guest_registers->rcx;
+
+  // x64	  x86	      Information Provided
+  // RDX	 EBX:EDX	  Hypercall Input Value
+  uint64_t context = (uint64_t)guest_status.guest_registers->rdx;
+
+  auto simply_hook = [&]() -> void
+  {
+    int lstar_value = __readmsr(ia32_lstar);
+    if (lstar_value == vcpu_data->original_lstar)
+    {
+      // The Context variable in this case will be a pointer to our New constructed LSTAR Handler that
+      // that is derived from the original LSTAR Handler: ( KiSystemCall64(Shadow) )
+      lstar_value = context;
+    }
+    __writemsr(ia32_lstar, lstar_value);
+  };
+
+  auto unsimply_hook = [&]() -> void
+  {
+    __writemsr(ia32_lstar, vcpu_data->original_lstar);
+  };
+
+  switch (hypercall_number)
+  {
+    case svm::hypercall_num::syscallhook:
+      simply_hook();
+      break;
+
+    case svm::hypercall_num::un_syscallhook:
+      unsimply_hook();
+      break;
+
+    default:
+      vminstructions_handler(vcpu_data);
+  }
+}
 
 // vminstructions_handler Substitutes having a vmload_handler, vmsave_handler and vmrun_handler
 auto vminstructions_handler(vmcb::pvcpu_ctx_t vcpu_data) noexcept -> void
 {
   inject_gp(vcpu_data);
 }
-
-/* This was gonna to be used as a way to unload the driver, but i decided to use
- * to use CPUID instead. After I had a better understand of it's interception
-
-auto vmmcall_handler(vmcb::pvcpu_ctx_t vcpu_data,
-                   guest_status_t guest_status) noexcept -> void
-{
-  if (guest_status.guest_registers->r14 != 'KREN')
-  { inject_ud(vcpu_data); }
-}
-*/
 
 auto cpuid_handler(vmcb::pvcpu_ctx_t vcpu_data,
                    guest_status_t& guest_status) noexcept -> void
@@ -99,7 +143,7 @@ auto cpuid_handler(vmcb::pvcpu_ctx_t vcpu_data,
       registers[0] = 0x40000001; 
       registers[1] = 'ddeM';
       registers[2] = 'saWy';
-      registers[1] = 'ereH';
+      registers[3] = 'ereH';
       break;
   }
 
@@ -134,12 +178,22 @@ auto setup_msrpermissions_bitmap(void* msrpermission_map) noexcept -> void
 
   RtlClearAllBits(&msr_bitmaps);
 
-  // Set the bit to indicating write access should be intercepted 
+  // Set the bit to indicating write access should be intercepted for EFER MSR
   constexpr uint64_t offset_2nd_base = (ia32_efer - msr_range_base) * bits_per_msr;
   constexpr uint64_t offset          = offset_2nd_base + size_of_vectors;
   RtlSetBits(&msr_bitmaps, offset + 1, 1);
 
+  // Set the bit to indicating write/read access should be intercepted for LSTAR MSR
+  constexpr uint64_t offset_3nd_base = (ia32_lstar - msr_range_base) * bits_per_msr;
+  constexpr uint64_t offset1         = offset_3nd_base + size_of_vectors;
+
+  RtlSetBits(&msr_bitmaps, offset, 1);    // setting the read access
+  RtlSetBits(&msr_bitmaps, offset + 1, 1);// setting the write access
+
 }
+
+//template<>
+//static auto msr_read_manager(uint32_t msr_value) -> void;
 
 auto msr_handler(vmcb::pvcpu_ctx_t vcpu_data,
                  guest_status_t& guest_status) noexcept -> void
@@ -158,34 +212,62 @@ auto msr_handler(vmcb::pvcpu_ctx_t vcpu_data,
   msr_value = guest_status.guest_registers->rax & 0xffffffff |
               guest_status.guest_registers->rdx & 0xffffffff;
 
-  if (ecx_value == ia32_efer && write_access) [[likely]]
+  switch(ecx_value)
   {
-    if ((msr_value & ia32_efer_svme) == 0)
-    {
-      inject_gp(vcpu_data);
-    }
+    case ia32_efer:
+      if (write_access) [[likely]]
+      {
+        if ((msr_value & ia32_efer_svme) == 0)
+        {
+          inject_gp(vcpu_data);
+        }
 
-    vcpu_data->guest_vmcb.save_state.efer = msr_value;
+        vcpu_data->guest_vmcb.save_state.efer = msr_value;
+      }
+      break;
+
+    case ia32_lstar:
+      if (write_access)
+      {
+        //kprint_info("THERE WAS A IA32_LSTAR WRITE!!!");
+        if (msr_value == vcpu_data->original_lstar)
+        {
+          //msr_value = (uint64_t)&MyKiSystemCall64Hook;
+        }
+        __writemsr(ia32_lstar, msr_value);
+      }
+      else
+      {
+        //kprint_info("THERE WAS A IA32_LSTAR READ!!!");
+        if (vcpu_data->original_lstar)
+        {
+          msr_value = vcpu_data->original_lstar;
+        }
+        else { msr_value = __readmsr(ia32_lstar); }
+      }
+      break;
+
+    default:
+      if (msr_ranges) [[unlikely]]
+      {
+        // If the MSR aka ecx_value is something other than EFER for any reason
+        // then proceed to manage the RDMSR/WRMSR for that unspecified MSR.
+        // I specified for only EFER to be intercepted, so this "else if" is most
+        // likely not going to be executed.
+
+        if (write_access)
+        {
+          __writemsr(ecx_value, msr_value);
+        }
+        else
+        {
+          uint64_t readmsr_value = __readmsr(ecx_value);
+          guest_status.guest_registers->rax = readmsr_value & 0xffffffff;
+          guest_status.guest_registers->rdx = readmsr_value >> 32 & 0xffffffff;
+        }
+      }
   }
-  else if (ecx_value != ia32_efer && msr_ranges) [[unlikely]]
-  {
-    // If the MSR aka ecx_value is something other than EFER for any reason
-    // then proceed to manage the RDMSR/WRMSR for that unspecified MSR.
-    // I specified for only EFER to be intercepted, so this "else if" is most
-    // likely not going to be executed.
-
-    if (write_access)
-    {
-      __writemsr(ecx_value, msr_value);
-    }
-    else
-    {
-      uint64_t readmsr_value = __readmsr(ecx_value);
-      guest_status.guest_registers->rax = readmsr_value & 0xffffffff;
-      guest_status.guest_registers->rdx = readmsr_value >> 32 & 0xffffffff;
-    }
-  }
-
+  
   vcpu_data->guest_vmcb.save_state.rip = vcpu_data->guest_vmcb.control_area.n_rip;
 }
 
@@ -195,8 +277,24 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
   guest_status_t current_guest_status;
 
   current_guest_status.guest_registers = guest_regs;
-
+  
   __svm_vmload(vcpu_data->host_vmcb_pa);
+
+  // I've been stuck on a bug (VMEXIT_INVALID) for not adding this one line.
+  // So this happened because the Guest Rax is overrwritten by host value on
+  // the execution of #VMEXIT. Guest Rax value is stored on the Guest VMCB instead
+  //
+  current_guest_status.guest_registers->rax = vcpu_data->guest_vmcb.save_state.rax;
+
+  OriginalKiSystemCallAddress = vcpu_data->original_lstar;
+
+  //kprint_info("SYSCALLHOOK_INIT\n");
+  int lstar_value = __readmsr(ia32_lstar);
+  if (lstar_value == OriginalKiSystemCallAddress)
+  {
+    //lstar_value = (uint64_t)&MyKiSystemCall64Hook;
+  }
+  __writemsr(ia32_lstar, lstar_value);
 
   switch (vcpu_data->guest_vmcb.control_area.exitcode)
   {
@@ -218,6 +316,11 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
 
     case VMEXIT::_CPUID:
       cpuid_handler(vcpu_data, current_guest_status);
+      break;
+
+    case VMEXIT::_VMMCALL:
+      // This isn't need, i only added vmmcall intercept for learning purposes.
+      vmmcall_handler(vcpu_data, current_guest_status);
       break;
 
     case VMEXIT::_INVALID:
@@ -244,7 +347,8 @@ extern "C" auto vmexit_handler(vmcb::pvcpu_ctx_t vcpu_data,
     __svm_stgi();
 
     // Disabling EFER.SVME and restore guest RFLAGS
-    svm::svm_disabling();
+    //svm::svm_disabling();
+    __writemsr(ia32_efer, __readmsr(ia32_efer) & ~(1 << 12));
     __writeeflags(vcpu_data->guest_vmcb.save_state.rflags);
 
     return current_guest_status.vmexit_status;

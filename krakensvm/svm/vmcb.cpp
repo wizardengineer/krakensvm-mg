@@ -26,6 +26,7 @@
 #include <vmcb.hpp>
 #include <hv_util.hpp>
 
+//extern "C" NTSYSAPI VOID RtlCaptureContext(PCONTEXT ContextRecord);
 using namespace ia32e;
 
 namespace vmcb
@@ -67,15 +68,14 @@ namespace vmcb
     // & Physical Address being assigned & ASID
     //
 
-    
     vcpu_data->guest_vmcb
       .control_area.intercept_misc_vector_3 |= INTERCEPT_MSR_PROT |
                                                INTERCEPT_CPUID    ;
                                                //INTERCEPT_FERR_FRE;
 
     vcpu_data->guest_vmcb
-      .control_area.intercept_misc_vector_4 |= INTERCEPT_VMRUN;//|
-                                               //INTERCEPT_EFER;                                          
+      .control_area.intercept_misc_vector_4 |= INTERCEPT_VMRUN |
+                                               INTERCEPT_VMMCALL;
 
     vcpu_data->guest_vmcb.control_area.guest_asid = 1;
 
@@ -160,6 +160,10 @@ namespace vmcb
     vcpu_data->self = vcpu_data;
     vcpu_data->self_shared_page_info = shared_page_info;
 
+    // For the Syscall hooking, get original LSTAR value before
+    // going into virtualization
+    vcpu_data->original_lstar = __readmsr(ia32_lstar);
+
     __svm_vmsave(guest_vmcb_pa);
 
     __writemsr(vm_hsave_pa, MmGetPhysicalAddress(&vcpu_data->host_state_area).QuadPart);
@@ -175,11 +179,11 @@ namespace vmcb
   auto virt_cpu_init(ppaging_data shared_page_info) noexcept -> bool
   {
     register_ctx_t host_info;
-    pvcpu_ctx_t vcpu_data {};
+    pvcpu_ctx_t vcpu_data { nullptr };
     bool status = true;
 
     vcpu_data = reinterpret_cast<pvcpu_ctx_t>
-      ( mm::page_aligned_alloc(sizeof(vcpu_ctx_t)) );
+      ( mm::system_aligned_alloc(sizeof(vcpu_ctx_t)) );
 
     //__debugbreak();
 
@@ -226,7 +230,7 @@ namespace vmcb
   _deallocation:
     if (!status && vcpu_data != nullptr)
     {
-      free_page_aligned_alloc(vcpu_data);
+      system_free_alloc(vcpu_data);
     }
     return status;
   }

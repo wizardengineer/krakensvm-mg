@@ -26,49 +26,28 @@
 #pragma once
 
 #include <stdint.h>
-#include <type_traits>
 #include <utility>
 
+//#include <windef.h>
 
-namespace svm
+typedef  struct _KSYSTEM_SERVICE_TABLE
 {
-  enum class cpuid_e : uint32_t // "e" for enum
-  {
+  uint64_t* ServiceTableBase;								// The base address of the service function address table   
+  uint64_t* ServiceCounterTableBase; 				// The number of times the SSDT function is called 
+  uint64_t  NumberOfService; 								// The number of   service functions PULONG 
+  char8_t*  ParamTableBase; 						    // The base address of the service function parameter table    
+} KSYSTEM_SERVICE_TABLE, * PKSYSTEM_SERVICE_TABLE;
 
-    // features
-    svm_features            = 0x8000000a,
-    svm_features_ex         = 0x80000001,
-    processor_feature_id    = 0x00000001,
-    processor_feature_id_ex = 0x80000001,
-    cpu_vendor_string       = 0x00000000,
-    hypervisor_present_ex   = 0x80000000,
-    hypervisor_interface    = 0x40000001,
-    hypervisor_vendor_id    = 0x40000000,
+typedef  struct _KSERVICE_TABLE_DESCRIPTOR
+{
+  KSYSTEM_SERVICE_TABLE NTOSKRNL;           // Ntoskrnl.exe service function   
+  KSYSTEM_SERVICE_TABLE Win32k;             // Win32k.sys service function (kernel supports GDI32.dll/User32.dll a)   
+  KSYSTEM_SERVICE_TABLE notUsed1;
+  KSYSTEM_SERVICE_TABLE notUsed2;
+} KSERVICE_TABLE_DESCRIPTOR, * PKSERVICE_TABLE_DESCRIPTOR;
 
-    // fn8000_0001_ecx_svm bit
-    svm_fn                  = 0x00000004,
-
-    // fn8000_0001_ebx_np bit
-    nest_page_fn            = 0x00000001,
-
-    // hypervisor specific features
-    unload_feature          = 0x41414141
-  };
-
-  enum hypercall_num : uint64_t
-  {
-    syscallhook = 4,
-    un_syscallhook
-  };
-
-  auto svm_support_checking  () noexcept -> bool;
-  auto svm_enabling          () noexcept -> void;
-
-  // Virtualize each processor
-  auto virt_each_processors  () noexcept -> bool;
-
-  // De-Virtualize each processor 'KRKN'
-  auto devirt_each_processors() noexcept -> void;
-  auto devirt_processor(void* shared_context) noexcept -> bool;
-
-}; // namespace svm
+namespace utils
+{
+  uint64_t get_kernelbase_addr     ();
+  auto get_service_descriptor_table() -> std::pair<PKSERVICE_TABLE_DESCRIPTOR, PKSERVICE_TABLE_DESCRIPTOR>;
+};

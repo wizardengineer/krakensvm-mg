@@ -26,49 +26,35 @@
 #pragma once
 
 #include <stdint.h>
-#include <type_traits>
 #include <utility>
 
+// extern "C" int MyKiSystemCall64Hook();
 
-namespace svm
+//
+// Hypervisor Allocation
+//
+
+__declspec(selectany) uint64_t appended_alloc   {};
+__declspec(selectany) char8_t* hypervisor_arena {};
+
+namespace hk
 {
-  enum class cpuid_e : uint32_t // "e" for enum
+  struct _hook_lstar_info
   {
+    uint64_t* hook_lstar_table;
+    uint64_t* hook_lstar_table_shadow;
 
-    // features
-    svm_features            = 0x8000000a,
-    svm_features_ex         = 0x80000001,
-    processor_feature_id    = 0x00000001,
-    processor_feature_id_ex = 0x80000001,
-    cpu_vendor_string       = 0x00000000,
-    hypervisor_present_ex   = 0x80000000,
-    hypervisor_interface    = 0x40000001,
-    hypervisor_vendor_id    = 0x40000000,
+    size_t hooked_table_size, hook_table_shdw_size;
 
-    // fn8000_0001_ecx_svm bit
-    svm_fn                  = 0x00000004,
+    _hook_lstar_info() noexcept : hook_table_shdw_size (0),
+                                  hooked_table_size    (0),
+                                  hook_lstar_table     (nullptr),
+                                  hook_lstar_table_shadow (nullptr) {}
 
-    // fn8000_0001_ebx_np bit
-    nest_page_fn            = 0x00000001,
+    ~_hook_lstar_info() = default;
 
-    // hypervisor specific features
-    unload_feature          = 0x41414141
   };
 
-  enum hypercall_num : uint64_t
-  {
-    syscallhook = 4,
-    un_syscallhook
-  };
-
-  auto svm_support_checking  () noexcept -> bool;
-  auto svm_enabling          () noexcept -> void;
-
-  // Virtualize each processor
-  auto virt_each_processors  () noexcept -> bool;
-
-  // De-Virtualize each processor 'KRKN'
-  auto devirt_each_processors() noexcept -> void;
-  auto devirt_processor(void* shared_context) noexcept -> bool;
-
-}; // namespace svm
+  auto syscallhook_init    (int context)          noexcept -> bool;
+  auto contruct_lstar_hook (uint64_t kernal_base) noexcept -> std::pair<bool, int>;
+};
