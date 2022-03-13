@@ -14,6 +14,7 @@ This was apart of my "Understanding of OS theoretical concepts" and emulator ser
   * [iPower](https://github.com/iPower) - sharing an approach to hooking System Calls and helping fix my VMCB issues
   * [Matthias](https://github.com/not-matthias) - For providing information that lead me on to fixing a VMEXIT_INVALID bug i came across and for going out of his way to even debug my HyperVisor to point logic issues and errors. Thank you so much 
   * [Jason](https://github.com/johnsonjason)
+  * [Luminous](https://github.com/389850689) - Looking over source code
    
  ## Reference - Resource I relied on:
    * [AMD CPUID Specification](http://developer.amd.com/wordpress/media/2012/10/254811.pdf)
