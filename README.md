@@ -14,13 +14,12 @@ This was apart of my "Understanding of OS theoretical concepts" and emulator ser
   * [iPower](https://github.com/iPower) - sharing an approach to hooking System Calls and helping fix my VMCB issues
   * [Matthias](https://github.com/not-matthias) - For providing information that lead me on to fixing a VMEXIT_INVALID bug i came across and for going out of his way to even debug my HyperVisor to point logic issues and errors. Thank you so much 
   * [Jason](https://github.com/johnsonjason)
-  * [Luminous](https://github.com/389850689) - Looking over source code
+  * [Luminous](https://github.com/389850689) 
    
  ## Reference - Resource I relied on:
    * [AMD CPUID Specification](http://developer.amd.com/wordpress/media/2012/10/254811.pdf)
    * [AMD Manual](https://www.amd.com/system/files/TechDocs/24593.pdf) 
-   * [AMD Pacifica Docs](https://course9+
-s.cs.vt.edu/~cs5204/fall07-kafura/Papers/Virtualization/AMD-Pacifica-slides.pdf)
+   * [AMD Pacifica Docs](https://course9+s.cs.vt.edu/~cs5204/fall07-kafura/Papers/Virtualization/AMD-Pacifica-slides.pdf)
    * [Intel Manual](https://software.intel.com/content/www/us/en/develop/articles/intel-sdm.html)
    * [Xeroxz Hypervisor](https://githacks.org/_xeroxz/bluepill)
    * [Irql Hypervisor](https://github.com/irql0/limevisor)
