@@ -2,7 +2,8 @@ KrakenSvm
 
 # Motativation
 This was apart of my "Understanding of OS theoretical concepts" and emulator series. I enjoy my time with this project, if you're interested in AMD virtualization then read chapter 15 of the amd manual.
-
+## Warning
+  This isn't finish yet, it's still a W.I.P so they may be errors. Feel free to report when possible
 ## Credit - Special Thanks:
   Thanks to these OGs, for the spark of inspiration/support and just being good friends/acquaintances overall on my continuous effort on this project and for helping me understand certain concepts within HyperVisor development Journey. =)
   * [xeroxz](https://twitter.com/_xeroxz?lang=en) - Helping explain concepts around HV and allowing me to use his code semantics for his amazing Hypervisor project
@@ -17,7 +18,8 @@ This was apart of my "Understanding of OS theoretical concepts" and emulator ser
  ## Reference - Resource I relied on:
    * [AMD CPUID Specification](http://developer.amd.com/wordpress/media/2012/10/254811.pdf)
    * [AMD Manual](https://www.amd.com/system/files/TechDocs/24593.pdf) 
-   * [AMD Pacifica Docs](https://courses.cs.vt.edu/~cs5204/fall07-kafura/Papers/Virtualization/AMD-Pacifica-slides.pdf)
+   * [AMD Pacifica Docs](https://course9+
+s.cs.vt.edu/~cs5204/fall07-kafura/Papers/Virtualization/AMD-Pacifica-slides.pdf)
    * [Intel Manual](https://software.intel.com/content/www/us/en/develop/articles/intel-sdm.html)
    * [Xeroxz Hypervisor](https://githacks.org/_xeroxz/bluepill)
    * [Irql Hypervisor](https://github.com/irql0/limevisor)
