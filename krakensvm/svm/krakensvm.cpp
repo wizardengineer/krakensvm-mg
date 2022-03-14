@@ -32,6 +32,7 @@
 
 extern "C" NTSYSAPI NTSTATUS NTAPI ZwYieldExecution();
 
+// Used in the file ../hooks/syscall_handler(deprecated).asm
 extern "C" void test_simple()
 {
   kprint_info("HOOKED LSTAR SUCCESSFULLY\n");
