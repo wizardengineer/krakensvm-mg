@@ -1,4 +1,4 @@
-#KrakenSvm
+KrakenSvm
 
 ## Motativation
 This was apart of my "Understanding of OS theoretical concepts" and emulator series. I enjoy my time with this project, if you're interested in AMD virtualization then read chapter 15 of the amd manual.
