@@ -116,8 +116,6 @@ svm_loop:
     movaps [rsp + 050h], xmm4
     movaps [rsp + 060h], xmm5
 
-
-
     ; 0x20 bytes to for the homing space, storage of
     ; non-volatile registers
     ;sub rsp, 20h
