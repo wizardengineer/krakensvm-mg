@@ -3,7 +3,7 @@ KrakenSvm
 ## Motativation
 This was apart of my "Understanding of OS theoretical concepts" and emulator series. I enjoy my time with this project, if you're interested in AMD virtualization then read chapter 15 of the amd manual.
 ## Warning
-  This project is yet to be finished. It's still a W.I.P so there maybe errors, so feel free to report any if possible. Syscall Hooks aren't finished yet.
+  This project is yet to be finished nor will it be finished anytime soon. It's still a W.I.P so there maybe errors, so feel free to report any if possible. Syscall Hooks aren't finished yet.
 ## TODO List:
   - [ ] Finish setting up IPI to be executed on execute
   - [ ] Finish up the SYSCALL Hooking
