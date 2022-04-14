@@ -38,10 +38,10 @@ extern "C" void test_simple()
   kprint_info("HOOKED LSTAR SUCCESSFULLY\n");
 }
 
-/*
- * Before enabling SVM, software should detect whether SVM can be enabled using
- * the following algorithm
- */
+//
+// Before enabling SVM, software should detect whether SVM can be enabled using
+// the following algorithm
+//
 
 using namespace ia32e;
 
