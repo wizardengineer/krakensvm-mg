@@ -5,7 +5,7 @@ This was apart of my "Understanding of OS theoretical concepts" and emulator ser
 ## Warning
   This project is yet to be finished nor will it be finished anytime soon. It's still a W.I.P so there maybe errors, so feel free to report any if possible. Syscall Hooks aren't finished yet.
 ## TODO List:
-  - [ ] Finish setting up IPI to be executed on execute
+  - [ ] Finish setting up IPI
   - [ ] Finish up the SYSCALL Hooking
   - [ ] Add fast page hooking
 ## Credit - Special Thanks:
